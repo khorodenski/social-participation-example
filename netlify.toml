@@ -1,0 +1,19 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+[dev]
+  command = "npm run dev:vite"
+  targetPort = 5173
+  framework = "#custom"
+
+# SPA fallback. The functions answer on /api/... directly via their own
+# `config.path` exports, so no /api/* redirect is needed here.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

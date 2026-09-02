@@ -1,0 +1,59 @@
+/*
+ * Dark, high-contrast "stage" theme (N-2).
+ * The admin screen is projected, so type is large and controls are small.
+ */
+:root {
+  /* surfaces */
+  --bg: #0a0c10;
+  --bg-elevated: #141821;
+  --bg-inset: #1c2230;
+  --border: #2a3242;
+  --border-strong: #3d4759;
+
+  /* text */
+  --text: #f2f5fa;
+  --text-muted: #9aa6bb;
+  --text-dim: #6b7688;
+
+  /* accents */
+  --accent: #4da3ff;
+  --accent-strong: #7cbcff;
+  --accent-contrast: #04121f;
+  --danger: #ff6b6b;
+  --success: #4ade80;
+
+  /* type scale — large end is for the projected stage */
+  --fs-xs: 0.8125rem;
+  --fs-sm: 0.9375rem;
+  --fs-md: 1.125rem;
+  --fs-lg: 1.5rem;
+  --fs-xl: 2.25rem;
+  --fs-2xl: 3.5rem;
+  --fs-3xl: 5rem;
+
+  --font-sans: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'Cascadia Code', 'Consolas', 'SF Mono', monospace;
+
+  /* spacing */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-6: 1.5rem;
+  --sp-8: 2rem;
+  --sp-12: 3rem;
+  --sp-16: 4rem;
+
+  --radius: 10px;
+  --radius-lg: 16px;
+
+  color-scheme: dark;
+}
+
+/* 720p projection: pull the largest sizes back a step. */
+@media (max-height: 800px) {
+  :root {
+    --fs-2xl: 2.75rem;
+    --fs-3xl: 3.75rem;
+  }
+}

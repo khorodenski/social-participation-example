@@ -7,3 +7,16 @@ dist/
 .DS_Store
 Thumbs.db
 docs/
+
+# tooling output
+coverage/
+.vite/
+*.tsbuildinfo
+
+# editors
+.vscode/
+.idea/
+*.swp
+
+# Netlify CLI artifact (edge functions bootstrap)
+deno.lock
