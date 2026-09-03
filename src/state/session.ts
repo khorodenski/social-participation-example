@@ -33,6 +33,18 @@ export const resourceSchema = z.object({
 });
 export type Resource = z.infer<typeof resourceSchema>;
 
+/**
+ * F-4.3 — what an attendee is allowed to submit. Shared by the function that
+ * accepts it and the form that sends it, so the two cannot drift apart.
+ */
+export const IDEA_MIN_LENGTH = 10;
+export const IDEA_MAX_LENGTH = 1000;
+
+export const ideaTextSchema = z
+  .string()
+  .transform((text) => text.trim())
+  .pipe(z.string().min(IDEA_MIN_LENGTH).max(IDEA_MAX_LENGTH));
+
 /** D-2 — one blob per idea so concurrent attendee writes never race. */
 export const ideaSchema = z.object({
   id: z.string().min(1),

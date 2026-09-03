@@ -14,6 +14,18 @@ import path from 'node:path';
 
 export const STORE_NAME = 'social-voting';
 
+/* ------------------------------------------------------------ key layout */
+
+/** The D-1..D-4 key layout, in one place so the functions cannot disagree. */
+export const SESSION_INDEX_KEY = 'sessions/index.json';
+
+export const sessionKey = (sessionId: string) => `sessions/${sessionId}.json`;
+export const ideasPrefix = (sessionId: string) => `sessions/${sessionId}/ideas/`;
+export const ideaKey = (sessionId: string, ideaId: string) =>
+  `${ideasPrefix(sessionId)}${ideaId}.json`;
+export const imagesPrefix = (sessionId: string) => `sessions/${sessionId}/images/`;
+export const resourcesPrefix = (sessionId: string) => `sessions/${sessionId}/resources/`;
+
 export type StorageBackend = 'blobs' | 'file';
 
 export interface StoredBlob {

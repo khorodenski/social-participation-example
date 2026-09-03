@@ -63,7 +63,7 @@ export const pl = {
   voting: {
     startVoting: 'Rozpocznij głosowanie',
     closeVoting: 'Zakończ głosowanie',
-    scanQr: 'Zeskanuj kod QR',
+    scanQr: 'Zeskanuj kod QR telefonem',
     ideasCount: 'Zebrane pomysły',
   },
 

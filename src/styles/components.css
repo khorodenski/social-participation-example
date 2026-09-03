@@ -124,3 +124,120 @@
     padding: var(--sp-4);
   }
 }
+
+/* --------------------------------------------------------- session screen */
+
+/* The stage fills the projection; the control bar sits quietly beneath it. */
+.page--session {
+  height: 100%;
+  padding: 0;
+  gap: 0;
+  justify-content: space-between;
+}
+
+.page--session > section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--sp-6);
+  padding: var(--sp-8);
+  min-height: 0;
+}
+
+.control-bar {
+  border-top: 1px solid var(--border);
+  background: var(--bg-elevated);
+  padding: var(--sp-2) var(--sp-4);
+  gap: var(--sp-4);
+}
+
+.control-bar__stage {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.control-bar__actions {
+  display: flex;
+  gap: var(--sp-2);
+  margin-left: auto;
+}
+
+.control-bar__status {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+/* ------------------------------------------------------------ voting stage */
+
+.voting {
+  width: 100%;
+}
+
+.voting__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.voting__body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-16);
+  flex-wrap: wrap;
+}
+
+.voting__qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+/* qrcode.react draws dark-on-transparent; the quiet zone has to be light or
+   phone cameras fail against the dark stage background. */
+.voting__qr > svg {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: var(--sp-2);
+  width: min(42vh, 420px);
+  height: auto;
+}
+
+.voting__url {
+  font-family: var(--font-mono);
+  font-size: var(--fs-md);
+  color: var(--text-muted);
+  word-break: break-all;
+}
+
+.voting__count {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.voting__count-number {
+  font-size: var(--fs-3xl);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.voting__count-label {
+  font-size: var(--fs-lg);
+  color: var(--text-muted);
+}
+
+/* Stack on a narrow projector or a laptop screen in portrait. */
+@media (max-width: 900px) {
+  .voting__body {
+    gap: var(--sp-8);
+  }
+}

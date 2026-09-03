@@ -1,5 +1,14 @@
 import type { Config, Context } from '@netlify/functions';
-import { deleteKey, listKeys, readJson, writeJson } from './_blobs';
+import {
+  SESSION_INDEX_KEY,
+  deleteKey,
+  ideasPrefix,
+  imagesPrefix,
+  listKeys,
+  readJson,
+  sessionKey,
+  writeJson,
+} from './_blobs';
 import { json, jsonError } from './_http';
 import { pl } from '../../src/i18n/pl';
 import {
@@ -11,12 +20,6 @@ import {
   type SessionSummary,
 } from '../../src/state/session';
 
-const INDEX_KEY = 'sessions/index.json';
-
-const sessionKey = (id: string) => `sessions/${id}.json`;
-const ideasPrefix = (id: string) => `sessions/${id}/ideas/`;
-const imagesPrefix = (id: string) => `sessions/${id}/images/`;
-
 /** F-1.4 — a short random session id. */
 function newSessionId(): string {
   const alphabet = 'abcdefghijkmnpqrstuvwxyz23456789';
@@ -25,7 +28,7 @@ function newSessionId(): string {
 }
 
 async function readIndex(): Promise<SessionSummary[]> {
-  const raw = await readJson<unknown>(INDEX_KEY);
+  const raw = await readJson<unknown>(SESSION_INDEX_KEY);
   const parsed = sessionIndexSchema.safeParse(raw ?? []);
   return parsed.success ? parsed.data : [];
 }
@@ -79,7 +82,7 @@ export default async (req: Request, _context: Context): Promise<Response> => {
         await writeJson(sessionKey(session.id), session);
         const index = await readIndex();
         index.unshift({ id: session.id, title: session.title, createdAt: session.createdAt });
-        await writeJson(INDEX_KEY, index);
+        await writeJson(SESSION_INDEX_KEY, index);
 
         return json(session, 201);
       }
@@ -129,7 +132,7 @@ export default async (req: Request, _context: Context): Promise<Response> => {
         const entry = index.find((s) => s.id === id);
         if (entry) {
           entry.title = updated.title;
-          await writeJson(INDEX_KEY, index);
+          await writeJson(SESSION_INDEX_KEY, index);
         }
       }
 
