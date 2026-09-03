@@ -8,10 +8,10 @@ import type { Group, Session } from '../state/session';
 /**
  * F-5.5 — what the hall looks at while grouping runs.
  *
- * Measured at roughly fifteen seconds for thirty ideas and twenty-three for a
- * hundred, so this screen is on the projector long enough to be read. It says
- * how much is being worked on rather than counting the seconds down, which
- * would only make the wait feel longer.
+ * Measured between five and fifteen seconds for the sizes a lecture produces,
+ * so this screen is on the projector long enough to be read but not long
+ * enough to need filling. It says how much is being worked on rather than
+ * counting seconds down, which would only make the wait feel longer.
  */
 interface GroupingStageProps {
   session: Session;

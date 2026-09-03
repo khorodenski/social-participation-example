@@ -5,16 +5,20 @@ import { makeIdeaLoad } from './__fixtures__/sampleIdeas';
 /**
  * Latency benchmark for the grouping call.
  *
- * Measured so far on gemma-4-31b-it: 120.7 s for 32 ideas, 104.4 s for 100.
- * Input size is not the driver — both runs produced 8 groups, and the cost is
- * in generating them. So the wait is roughly two minutes whatever the hall
- * submits, which a progress screen can carry.
+ * Where this landed, on gemma-4-26b-a4b-it with the scaled prompt:
  *
- * gemma-4-26b-a4b-it answered in 35-46 s but never passed the schema. Re-run it
- * alone to see the printed cause:
+ *   1 idea    14.6 s      5 ideas    5.1 s      32 ideas   ~15 s
+ *   2 ideas   9 s, measured in a browser on the live site
  *
- *   $env:BENCH_MODELS="gemma-4-26b-a4b-it"; $env:BENCH_SIZES="32"
- *   npm run bench:grouping
+ * gemma-4-31b-it is the slow fallback at 21 s, 89 s and 104 s for the same
+ * sizes. Nothing here needs a model swap; grouping is an ordinary loading
+ * state.
+ *
+ * The benchmark earned its keep twice over. It found that latency barely
+ * tracks input size, and then that this model failed outright at 32 ideas on
+ * a response shape the parser did not know. Run it after any prompt change:
+ *
+ *   $env:BENCH_SIZES="1,5,32"; npm run bench:grouping
  *
  * Skipped unless GOOGLE_API_KEY is set. It makes one real call per model per
  * size, so the default run is four calls and can take ten minutes. Results

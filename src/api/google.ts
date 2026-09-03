@@ -21,11 +21,11 @@ import {
 /**
  * Text + vision model used for grouping and prompt expansion.
  *
- * Chosen over `gemma-4-31b-it` on measured latency: 15 s for 32 ideas and
- * 23 s for 100, against roughly two minutes either way. Cluster quality is
- * equal after the M3-1 prompt work. The one wrinkle is that this variant
- * answers with the bare array rather than the documented wrapper, which
- * `groupingResponseSchema` accepts.
+ * Chosen over `gemma-4-31b-it` on measured latency: five to fifteen seconds
+ * across the sizes a lecture produces, against 21 s to 104 s for the same
+ * inputs. Cluster quality is equal after the M3-1 prompt work. The wrinkle is
+ * that it varies the top level of its JSON between three shapes, all handled
+ * by `unwrapGroupingResponse`.
  *
  * `gemma-4-31b-it` is the fallback if a session ever needs finer clusters and
  * the wait is acceptable.
