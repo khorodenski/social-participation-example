@@ -45,8 +45,13 @@ export const pl = {
     introLabel: 'Wprowadzenie (opcjonalne)',
     open: 'Otwórz',
     reset: 'Resetuj sesję',
-    noSessions: 'Brak sesji.',
+    noSessions: 'Nie ma jeszcze żadnej sesji.',
     placeholder: 'Panel prowadzącego',
+    create: 'Utwórz sesję',
+    titleRequired: 'Podaj tytuł sesji.',
+    titlePlaceholder: 'np. Plac przed dworcem',
+    introPlaceholder: 'np. Jak urządzić to miejsce?',
+    createdAt: 'Utworzono',
   },
 
   stages: {
@@ -74,8 +79,14 @@ export const pl = {
     thankYouHint: 'Twój pomysł został zapisany.',
     tooShort: 'Pomysł musi mieć co najmniej 10 znaków.',
     tooLong: 'Pomysł może mieć najwyżej 1000 znaków.',
-    votingClosed: 'Głosowanie jest zamknięte.',
+    votingClosed: 'Głosowanie jest zakończone.',
+    notOpenYet: 'Głosowanie jeszcze się nie zaczęło.',
     placeholder: 'Formularz uczestnika',
+    inputPlaceholder: 'Napisz, co powinno się tu znaleźć…',
+    sending: 'Wysyłam…',
+    charsLeft: 'Pozostało znaków',
+    charsNeeded: 'Brakuje znaków',
+    thankYouAgain: 'Twój pomysł już do nas dotarł.',
   },
 
   resources: {

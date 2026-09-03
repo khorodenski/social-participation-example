@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getIdeaCount, getSession, patchSession, resetSession } from '../api/client';
+import {
+  getIdeaCount,
+  getPublicSession,
+  getSession,
+  patchSession,
+  resetSession,
+} from '../api/client';
 import { pl } from '../i18n/pl';
-import type { Session, SessionPatch } from './session';
+import type { PublicSession, Session, SessionPatch } from './session';
 
 /**
  * Session loading and stage transitions for the lecturer's screen.
@@ -113,6 +119,45 @@ export function useIdeaCount(id: string | undefined, active: boolean): number | 
   }, [id, active]);
 
   return count;
+}
+
+/**
+ * What the attendee page is allowed to know: title, intro, stage (F-4.3).
+ * Never the ideas, never the groups.
+ */
+export function usePublicSession(id: string | undefined): {
+  session: PublicSession | null;
+  loading: boolean;
+  error: string | null;
+} {
+  const [session, setSession] = useState<PublicSession | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const result = await getPublicSession(id);
+        if (!cancelled) {
+          setSession(result);
+          setError(null);
+        }
+      } catch (err) {
+        if (!cancelled) setError(messageOf(err));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  return { session, loading, error };
 }
 
 /** F-4.1 — the absolute URL the QR code encodes. */
