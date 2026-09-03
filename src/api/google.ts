@@ -1,5 +1,4 @@
-import { GoogleGenAI } from '@google/genai';
-import type { ContentListUnion } from '@google/genai';
+import type { ContentListUnion, GoogleGenAI } from '@google/genai';
 import type { z } from 'zod';
 import { pl } from '../i18n/pl';
 import type { Group, Idea, Resource } from '../state/session';
@@ -41,7 +40,18 @@ export const TEXT_MODEL = 'gemma-4-26b-a4b-it';
  */
 export const IMAGE_MODEL = 'gemini-3.1-flash-image';
 
-export function createGoogleClient(apiKey: string): GoogleGenAI {
+/**
+ * The SDK is loaded on demand, not at start-up.
+ *
+ * It is ~300 kB of the bundle and only the lecturer's screen ever calls it.
+ * Attendees open the idea form on a phone, often on mobile data in a hall with
+ * bad reception, and should not pay for a library they never touch.
+ */
+let sdk: Promise<typeof import('@google/genai')> | null = null;
+
+export async function createGoogleClient(apiKey: string): Promise<GoogleGenAI> {
+  sdk ??= import('@google/genai');
+  const { GoogleGenAI } = await sdk;
   return new GoogleGenAI({ apiKey });
 }
 
@@ -118,7 +128,7 @@ async function generateJson<S extends z.ZodTypeAny>(
   schema: S,
   model: string = TEXT_MODEL,
 ): Promise<z.infer<S>> {
-  const ai = createGoogleClient(apiKey);
+  const ai = await createGoogleClient(apiKey);
   // Annotated because `pl` is `as const`, which would otherwise pin this to the
   // literal type of the first message.
   let problem: string = pl.model.invalidResponse;
@@ -248,7 +258,7 @@ export async function groupIdeas(
 
 /** F-3.3 — a trivial call used by the "Testuj klucz" action. */
 export async function testApiKey(apiKey: string): Promise<boolean> {
-  const ai = createGoogleClient(apiKey);
+  const ai = await createGoogleClient(apiKey);
   const res = await ai.models.generateContent({
     model: TEXT_MODEL,
     contents: 'ping',

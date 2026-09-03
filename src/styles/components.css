@@ -347,3 +347,86 @@
     align-items: stretch;
   }
 }
+
+/* ---------------------------------------------------------- grouping stage */
+
+.grouping {
+  width: 100%;
+  max-width: 44rem;
+}
+
+.grouping__title {
+  font-size: var(--fs-2xl);
+}
+
+.grouping__error {
+  font-size: var(--fs-lg);
+}
+
+/* A slow breath rather than a spinner: this sits on a projector for fifteen
+   seconds or more, and a fast animation makes a wait feel longer. */
+.grouping__pulse {
+  width: 12rem;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  background-size: 200% 100%;
+  animation: grouping-sweep 2.4s ease-in-out infinite;
+}
+
+@keyframes grouping-sweep {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grouping__pulse {
+    animation: none;
+    background: var(--accent);
+    opacity: 0.5;
+  }
+}
+
+/* ----------------------------------------------------------- results stage */
+
+.results {
+  width: 100%;
+  max-width: 56rem;
+}
+
+.results__list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  width: 100%;
+}
+
+.results__group {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-6);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: left;
+}
+
+.results__label {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+}
+
+.results__count {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}

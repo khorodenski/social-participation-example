@@ -58,11 +58,17 @@ export const pl = {
     setup: 'Przygotowanie',
     voting: 'Głosowanie',
     grouping: 'Grupuję pomysły…',
+    groupingHint: 'To potrwa kilkanaście sekund.',
     results: 'Wyniki',
     expanding: 'Rozwijanie promptów',
     expanded: 'Prompty gotowe',
     visualizing: 'Wizualizacja',
     gallery: 'Galeria',
+  },
+
+  results: {
+    groupAgain: 'Grupuj ponownie',
+    noGroups: 'Model nie zwrócił żadnej grupy.',
   },
 
   voting: {
