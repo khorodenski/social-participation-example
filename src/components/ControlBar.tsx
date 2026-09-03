@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import GearSettingsDialog from './GearSettingsDialog';
 import { pl } from '../i18n/pl';
 
 /**
@@ -81,6 +82,8 @@ export default function ControlBar({ stageLabel, actions, busy, error }: Control
           {error}
         </span>
       ) : null}
+
+      <GearSettingsDialog />
     </div>
   );
 }

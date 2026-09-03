@@ -430,3 +430,109 @@
   font-variant-numeric: tabular-nums;
   color: var(--accent);
 }
+
+/* ------------------------------------------------------------- settings */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+
+/* Small and quiet: this sits on a projected screen and is touched twice a
+   lecture, before anyone is watching. */
+.gear {
+  background: none;
+  border: 0;
+  padding: var(--sp-2);
+  color: var(--text-dim);
+  cursor: pointer;
+  display: inline-flex;
+  border-radius: var(--radius);
+  transition: color 120ms ease;
+}
+
+.gear:hover {
+  color: var(--text);
+}
+
+.gear > svg {
+  width: 20px;
+  height: 20px;
+}
+
+.control-bar .gear {
+  margin-left: var(--sp-2);
+}
+
+.settings {
+  background: var(--bg-elevated);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 0;
+  width: min(34rem, calc(100vw - 2rem));
+  /* The reset zeroes every margin, which also removes the UA stylesheet's
+     `margin: auto` and drops a modal dialog into the top-left corner. */
+  margin: auto;
+}
+
+.settings::backdrop {
+  background: rgb(0 0 0 / 0.6);
+}
+
+.settings__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-6);
+}
+
+.settings__title {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+}
+
+.settings__key {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.settings__key > .input {
+  /* Keys are long; let the field take the room and the toggle stay put. */
+  min-width: 0;
+  font-family: var(--font-mono);
+}
+
+.settings__key > .btn {
+  flex: none;
+}
+
+.settings__privacy {
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  border-left: 2px solid var(--border-strong);
+  padding-left: var(--sp-3);
+}
+
+.settings__actions {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.settings__close {
+  margin-left: auto;
+}

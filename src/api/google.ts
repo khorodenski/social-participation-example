@@ -256,14 +256,25 @@ export async function groupIdeas(
 
 /* -------------------------------------------------------------- the rest */
 
-/** F-3.3 — a trivial call used by the "Testuj klucz" action. */
-export async function testApiKey(apiKey: string): Promise<boolean> {
-  const ai = await createGoogleClient(apiKey);
-  const res = await ai.models.generateContent({
-    model: TEXT_MODEL,
-    contents: 'ping',
-  });
-  return typeof res.text === 'string' && res.text.length > 0;
+/**
+ * F-3.3 — the "Testuj klucz" action: the smallest call that proves a key works.
+ *
+ * Resolves on success and throws a {@link ModelError} carrying Polish copy
+ * otherwise, so the dialog can show the reason rather than a bare failure.
+ */
+export async function testApiKey(apiKey: string): Promise<void> {
+  try {
+    const ai = await createGoogleClient(apiKey);
+    const res = await ai.models.generateContent({
+      model: TEXT_MODEL,
+      contents: 'ping',
+    });
+
+    if (!res.text) throw new ModelError(pl.model.emptyResponse);
+  } catch (err) {
+    if (err instanceof ModelError) throw err;
+    throw new ModelError(describeModelError(err), true, { cause: err });
+  }
 }
 
 /**

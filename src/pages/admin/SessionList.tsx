@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import GearSettingsDialog from '../../components/GearSettingsDialog';
 import Spinner from '../../components/Spinner';
 import { createSession, listSessions } from '../../api/client';
 import { pl } from '../../i18n/pl';
@@ -61,7 +62,12 @@ export default function SessionList() {
 
   return (
     <main className="page page--narrow">
-      <h1 className="stage-title">{pl.admin.listTitle}</h1>
+      <header className="list-head">
+        <h1 className="stage-title">{pl.admin.listTitle}</h1>
+        {/* Reachable before any session exists, so a fresh laptop is not a
+            dead end on rehearsal morning. */}
+        <GearSettingsDialog />
+      </header>
 
       <form
         className="card session-form"

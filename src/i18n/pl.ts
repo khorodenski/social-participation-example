@@ -36,6 +36,16 @@ export const pl = {
     keyFailed: 'Klucz nie działa.',
     keyMissing: 'Brak klucza API.',
     clearKey: 'Usuń klucz',
+    open: 'Ustawienia klucza API',
+    placeholder: 'Wklej klucz z Google AI Studio',
+    reveal: 'Pokaż',
+    hide: 'Ukryj',
+    testing: 'Sprawdzam klucz…',
+    saved: 'Klucz zapisany w tej przeglądarce.',
+    cleared: 'Klucz usunięty.',
+    unsaved: 'Klucz nie został jeszcze zapisany.',
+    privacy:
+      'Klucz nie opuszcza tej przeglądarki. Nie trafia na serwer ani do zapisanych danych sesji.',
   },
 
   admin: {
