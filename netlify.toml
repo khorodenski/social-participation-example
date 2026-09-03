@@ -2,6 +2,11 @@
   command = "npm run build"
   publish = "dist"
   functions = "netlify/functions"
+  # Free-tier credits are spent per build, so skip builds that cannot change
+  # what is deployed: tests, fixtures, the spike scripts, docs and tooling
+  # config. Exit 0 means "skip". An empty CACHED_COMMIT_REF (first build after
+  # a cache wipe) makes git fail, which is non-zero, so the build runs.
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ':(exclude)src/**/*.test.ts' ':(exclude)src/api/__fixtures__' ':(exclude)scripts' ':(exclude)*.md' ':(exclude)eslint.config.js' ':(exclude).prettierrc' ':(exclude).prettierignore'"
 
 [functions]
   node_bundler = "esbuild"

@@ -20,7 +20,9 @@ Vite + React 18 + TypeScript (strict) + `react-router-dom` v6. `@netlify/functio
 
 ## Scripts
 
-`npm run dev` (netlify dev) · `npm run dev:vite` (Vite only) · `npm run build` · `npm run preview` · `npm run typecheck` · `npm run lint` · `npm run format` · `npm test`
+`npm run dev` (netlify dev via npx) · `npm run dev:vite` (Vite only) · `npm run build` · `npm run preview` · `npm run typecheck` · `npm run lint` · `npm run format` · `npm test` · `npm run verify:models` · `npm run spike:grouping` · `npm run bench:grouping`
+
+`netlify-cli` is intentionally not a dependency: it is 1186 packages and 277 MB, and Netlify installs devDependencies on every build.
 
 ## Where things live
 
@@ -40,3 +42,5 @@ Vite + React 18 + TypeScript (strict) + `react-router-dom` v6. `@netlify/functio
 - All JSON errors from functions are `{ "error": "<polish message>" }`, using strings from `src/i18n/pl.ts`.
 - One blob per idea (`sessions/<id>/ideas/<ideaId>.json`) so concurrent attendee writes never race.
 - Every model response is zod-validated before it is persisted; invalid responses surface as a retryable error.
+- **Netlify credits are finite and the project must fit the free tier.** Every push to `main` costs a build. Commit freely, push in batches, and only when a deploy is actually wanted. `netlify.toml`'s `ignore` command already skips builds for test-only, script-only and docs-only commits; `[skip netlify]` in a commit message skips one on demand.
+- Netlify pins a "Powered by Netlify" badge to the bottom-right corner on the free tier. Keep that corner free of controls; `--badge-reserve` in `theme.css` is the width set aside for it.

@@ -16,7 +16,9 @@ npm install
 npm run dev
 ```
 
-`npm run dev` runs `netlify dev`, which serves the Vite app and the Netlify Functions together on one origin, so `/api/...` works locally.
+`npm run dev` runs `netlify dev` through `npx`, which serves the Vite app and the Netlify Functions together on one origin, so `/api/...` works locally. The first run downloads the Netlify CLI into the npx cache, which takes a minute; later runs reuse it.
+
+The CLI is deliberately **not** a dependency of this project. It pulls 1186 packages and 277 MB, and Netlify installs devDependencies on every build, so keeping it out cuts each deploy's install from 1907 packages to 718.
 
 Useful URLs once it is running:
 
@@ -29,7 +31,7 @@ Useful URLs once it is running:
 
 | Script              | What it does                                |
 | ------------------- | ------------------------------------------- |
-| `npm run dev`       | `netlify dev` — app + functions             |
+| `npm run dev`       | `netlify dev` via npx — app + functions     |
 | `npm run dev:vite`  | Vite only, for UI work without functions    |
 | `npm run build`     | Typecheck, then production build to `dist/` |
 | `npm run preview`   | Serve the production build                  |
@@ -52,3 +54,13 @@ Nothing in this repository assumes a Netlify site id, team or deploy URL, so it 
 4. **No environment variables are required.** There are no secrets in the build; the Google API key lives only in the lecturer's browser.
 5. Netlify Blobs is enabled by default for the site, so the functions switch from the local file backend to real Blobs automatically.
 6. Deploy from `main`. Continuous deploys on every push to `main` after that.
+
+## Staying inside the free tier
+
+Netlify spends credits per build, and every push to `main` is a build. Three things keep that in check:
+
+- **Push in batches, not per commit.** Commit as often as you like; push when you actually want a deploy to test against.
+- **`netlify.toml` skips pointless builds.** Its `ignore` command compares the new commit against the last built one and skips the build when only tests, fixtures, `scripts/`, docs or tooling config changed.
+- **Skip a single deploy on demand** by putting `[skip netlify]` in the commit message.
+
+If credits still run short, turn off automatic builds in the Netlify UI (**Project configuration → Build & deploy → Stop builds**) and deploy by hand when you need one.
