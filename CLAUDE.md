@@ -11,7 +11,7 @@ It is short-lived and rehearsed — no accounts, no anti-spam, no long-term pers
 - **API key is client-only.** The lecturer's Google API key lives in their browser `localStorage` and nowhere else. Every Google Gen AI call is made from the browser. The key must never reach a Netlify Function, Netlify Blobs, a log line, an env file or a `VITE_*` variable.
 - **Polish UI.** All user-facing text, and all LLM output (labels, syntheses), is Polish. Every string lives in `src/i18n/pl.ts` — never inline Polish copy elsewhere.
 - **Netlify only.** Static site + Netlify Functions + Netlify Blobs on the free tier. No other backend services. Functions are a thin, key-less persistence layer.
-- **`docs/` is local and authoritative.** `docs/01-project-description.md`, `docs/02-requirements.md` and `docs/03-implementation-plan.md` are the source of truth. The folder is git-ignored on purpose — never commit it, and read it before making design decisions.
+- **`docs/` is local and authoritative.** `docs/01-project-description.md`, `docs/02-requirements.md` and `docs/03-implementation-plan.md` are the source of truth, and `docs/05-handoff.md` carries the current state, the decisions already taken and the traps already hit. **Read the handoff first**; it is shorter than the plan and says which parts of the plan turned out to be wrong. The folder is git-ignored on purpose — never commit it.
 - **Windows host.** npm scripts must stay cross-platform; no bash-only syntax in `package.json`.
 
 ## Stack
