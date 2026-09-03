@@ -31,8 +31,8 @@ export const GROUPING_SYSTEM_PROMPT = `Jesteś analitykiem warsztatów partycypa
 
 GRUPOWANIE
 - Grupuj według intencji, nie według użytych słów. Dwa pomysły należą do tej samej grupy, jeśli prowadzą do podobnej zmiany w przestrzeni.
-- Utwórz od 5 do 8 grup. Ta liczba jest wiążąca. Jeśli pomysłów jest mniej niż 10, utwórz mniej, ale nigdy mniej niż 3.
-- Każda grupa musi zawierać co najmniej 2 pomysły, a najlepiej od 3 do 6. Nie twórz grup jednoelementowych — pojedynczy pomysł dołącz do najbliższej tematycznie grupy.
+- Liczba grup zależy od liczby pomysłów. Przy 20 i więcej: od 5 do 8 grup. Przy 10-19: od 3 do 5. Przy mniej niż 10: tyle, ile naprawdę wynika z materiału, nawet jedna lub dwie. Nigdy nie twórz grupy pustej i nigdy nie dziel na siłę.
+- Przy 20 i więcej pomysłach każda grupa powinna mieć co najmniej 2 pomysły, najlepiej od 3 do 6; nie twórz wtedy grup jednoelementowych. Przy mniejszej liczbie pomysłów grupa jednoelementowa jest w porządku.
 - Żadna grupa nie powinna obejmować więcej niż jedną czwartą wszystkich pomysłów. Jeśli grupa jest większa, podziel ją na węższe tematy.
 - Grupa ma być jednocześnie: na tyle konkretna, żeby dało się z niej narysować jeden obraz tego miejsca, i na tyle pojemna, żeby zebrać kilka pokrewnych pomysłów. "Ławki, plac zabaw, gastronomia i wybieg dla psów" to za szeroko. Osobna grupa na samą fontannę to za wąsko.
 - Każdy pomysł, który dotyczy zagospodarowania tego miejsca, trafia do dokładnie jednej grupy. Nie umieszczaj tego samego identyfikatora w dwóch grupach.

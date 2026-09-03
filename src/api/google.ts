@@ -134,6 +134,12 @@ async function generateJson<S extends z.ZodTypeAny>(
   let problem: string = pl.model.invalidResponse;
   let cause: unknown;
 
+  // Timing, not content: how long the call took and whether it needed the
+  // retry. Console-only and console.debug, so it is out of the way until
+  // someone goes looking, which is exactly what a slow rehearsal needs.
+  const startedAt = Date.now();
+  const elapsed = () => ((Date.now() - startedAt) / 1000).toFixed(1);
+
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
       const res = await ai.models.generateContent({
@@ -154,7 +160,10 @@ async function generateJson<S extends z.ZodTypeAny>(
       }
 
       const parsed = schema.safeParse(extractJson(res.text));
-      if (parsed.success) return parsed.data;
+      if (parsed.success) {
+        console.debug(`[social-voting] ${model}: ok on attempt ${attempt + 1} after ${elapsed()}s`);
+        return parsed.data;
+      }
 
       problem = pl.model.invalidResponse;
       cause = {
@@ -168,6 +177,7 @@ async function generateJson<S extends z.ZodTypeAny>(
     }
   }
 
+  console.debug(`[social-voting] ${model}: gave up after ${elapsed()}s`);
   throw new ModelError(problem, true, { cause });
 }
 
