@@ -43,4 +43,35 @@ describe('groupingResponseSchema', () => {
     expect(groupingResponseSchema.safeParse('Oto grupy:').success).toBe(false);
     expect(groupingResponseSchema.safeParse(null).success).toBe(false);
   });
+
+  /**
+   * The shape that failed a real 32-idea run: the documented wrapper, itself
+   * wrapped in an array. Content was correct; only the packaging was wrong.
+   */
+  it('accepts the wrapper wrapped in an array', () => {
+    const parsed = groupingResponseSchema.safeParse([{ groups: [GROUP] }]);
+
+    expect(parsed.success).toBe(true);
+    expect(parsed.success && parsed.data.groups).toHaveLength(1);
+    expect(parsed.success && parsed.data.groups[0]?.label).toBe('Zieleń i cień');
+  });
+
+  it('accepts a wrapper holding another wrapper', () => {
+    const parsed = groupingResponseSchema.safeParse({ groups: [{ groups: [GROUP] }] });
+
+    expect(parsed.success).toBe(true);
+    expect(parsed.success && parsed.data.groups[0]?.ideaIds).toEqual(['i1', 'i3']);
+  });
+
+  it('does not mistake a two-group array for a wrapper', () => {
+    const second = { ...GROUP, label: 'Rowery', ideaIds: ['i2'] };
+    const parsed = groupingResponseSchema.safeParse([GROUP, second]);
+
+    expect(parsed.success).toBe(true);
+    expect(parsed.success && parsed.data.groups).toHaveLength(2);
+  });
+
+  it('still rejects a single-element array whose element is not a group', () => {
+    expect(groupingResponseSchema.safeParse([{ notAGroup: true }]).success).toBe(false);
+  });
 });

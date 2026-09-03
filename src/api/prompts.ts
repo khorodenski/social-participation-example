@@ -112,8 +112,43 @@ const rawGroupSchema = z.object({
  * prompt asks for, while `gemma-4-31b-it` wraps it. The content is identical
  * either way, so both shapes are accepted rather than argued with.
  */
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+/**
+ * `gemma-4-26b-a4b-it` is not consistent about the top level. Three shapes have
+ * been seen from it, all carrying identical, correct content:
+ *
+ *   {"groups":[ {label,...}, ... ]}     the documented one
+ *   [ {label,...}, ... ]                the bare list
+ *   [ {"groups":[ {label,...} ]} ]      the documented one, wrapped again
+ *
+ * The third failed a real 32-idea run, which is lecture size, so this unwraps
+ * rather than argues. Anything else is left alone for zod to reject.
+ */
+export function unwrapGroupingResponse(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    // A single-element array holding the wrapper: take the wrapper.
+    const [first] = value;
+    if (value.length === 1 && isRecord(first) && Array.isArray(first.groups)) {
+      return first;
+    }
+    return { groups: value };
+  }
+
+  // The wrapper holding another wrapper.
+  if (isRecord(value) && Array.isArray(value.groups)) {
+    const [first] = value.groups;
+    if (value.groups.length === 1 && isRecord(first) && Array.isArray(first.groups)) {
+      return first;
+    }
+  }
+
+  return value;
+}
+
 export const groupingResponseSchema = z.preprocess(
-  (value) => (Array.isArray(value) ? { groups: value } : value),
+  unwrapGroupingResponse,
   z.object({
     groups: z.array(rawGroupSchema).min(1),
   }),
