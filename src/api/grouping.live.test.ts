@@ -45,7 +45,17 @@ describe.skipIf(!apiKey)('groupIdeas against the real model', () => {
 
     // The lecturer has to select exactly three, so fewer than three is unusable.
     expect(groups.length).toBeGreaterThanOrEqual(3);
-    expect(groups.length).toBeLessThanOrEqual(9);
+    expect(groups.length).toBeLessThanOrEqual(10);
+
+    // A group holding a quarter of the room is a weak podium card and a muddy
+    // image prompt. "Inne" is exempt; it is a bucket by definition.
+    for (const group of groups) {
+      if (group.label === pl.common.other) continue;
+      expect(
+        group.ideaIds.length,
+        `group too broad to visualise: ${group.label} holds ${group.ideaIds.length}`,
+      ).toBeLessThanOrEqual(Math.ceil(SAMPLE_IDEAS.length / 4));
+    }
 
     /* --------------------------------------------------- F-5.3 coverage */
 
