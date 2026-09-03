@@ -95,18 +95,25 @@ No text before or after, no commentary, no markdown fences.`;
 
 /* --------------------------------------------------------------- schemas */
 
-/** F-5.2 — the raw grouping response, before the app assigns group ids. */
-export const groupingResponseSchema = z.object({
-  groups: z
-    .array(
-      z.object({
-        label: z.string().min(1),
-        synthesis: z.string(),
-        ideaIds: z.array(z.string()),
-      }),
-    )
-    .min(1),
+const rawGroupSchema = z.object({
+  label: z.string().min(1),
+  synthesis: z.string(),
+  ideaIds: z.array(z.string()),
 });
+
+/**
+ * F-5.2 — the raw grouping response, before the app assigns group ids.
+ *
+ * `gemma-4-26b-a4b-it` answers with the bare array instead of the wrapper the
+ * prompt asks for, while `gemma-4-31b-it` wraps it. The content is identical
+ * either way, so both shapes are accepted rather than argued with.
+ */
+export const groupingResponseSchema = z.preprocess(
+  (value) => (Array.isArray(value) ? { groups: value } : value),
+  z.object({
+    groups: z.array(rawGroupSchema).min(1),
+  }),
+);
 export type GroupingResponse = z.infer<typeof groupingResponseSchema>;
 
 /** F-7.1 — the expansion response: one image prompt. */

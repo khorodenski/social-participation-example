@@ -20,13 +20,16 @@ import { pl } from '../i18n/pl';
  */
 const apiKey = process.env.GOOGLE_API_KEY?.trim();
 
+/** Set SPIKE_MODEL to quality-check a candidate before swapping TEXT_MODEL. */
+const model = process.env.SPIKE_MODEL?.trim();
+
 const countWords = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
 const countSentences = (text: string) =>
   text.split(/[.!?]+(?:\s|$)/).filter((s) => s.trim()).length;
 
 describe.skipIf(!apiKey)('groupIdeas against the real model', () => {
   it('groups ~30 Polish ideas into selectable, anonymised groups', async () => {
-    const groups = await groupIdeas(apiKey as string, SAMPLE_IDEAS);
+    const groups = await groupIdeas(apiKey as string, SAMPLE_IDEAS, model);
 
     /* ------------------------------------------------ eyeball the output */
 
