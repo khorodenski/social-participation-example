@@ -21,9 +21,17 @@ import {
 
 /**
  * Text + vision model used for grouping and prompt expansion.
- * Id confirmed against `ai.models.list()` with the lecturer's key.
+ *
+ * Chosen over `gemma-4-31b-it` on measured latency: 15 s for 32 ideas and
+ * 23 s for 100, against roughly two minutes either way. Cluster quality is
+ * equal after the M3-1 prompt work. The one wrinkle is that this variant
+ * answers with the bare array rather than the documented wrapper, which
+ * `groupingResponseSchema` accepts.
+ *
+ * `gemma-4-31b-it` is the fallback if a session ever needs finer clusters and
+ * the wait is acceptable.
  */
-export const TEXT_MODEL = 'gemma-4-31b-it';
+export const TEXT_MODEL = 'gemma-4-26b-a4b-it';
 
 /**
  * Image generation model ("Nano Banana 2"). Generation only — never used to

@@ -3,8 +3,8 @@ import { z } from 'zod';
 /**
  * System prompts and response schemas for the two text-model calls (A-3).
  *
- * Confirmed against `gemma-4-31b-it` with the lecturer's key
- * (`npm run verify:models`):
+ * Confirmed against both Gemma variants with the lecturer's key
+ * (`npm run verify:models`, `npm run spike:grouping`):
  *  - `systemInstruction` IS accepted, so these prompts go in the system slot
  *    rather than being prepended to the user turn.
  *  - `responseMimeType: 'application/json'` IS accepted, so structured output
@@ -12,7 +12,8 @@ import { z } from 'zod';
  *  - A strict Polish JSON prompt already returns clean, parseable JSON.
  *
  * Only `responseMimeType` was verified, not `responseSchema`, so the schema is
- * also spelled out in the prompt text. Responses are zod-validated before being
+ * also spelled out in the prompt text. `gemma-4-26b-a4b-it` returns the bare
+ * array regardless, which `groupingResponseSchema` accepts. Responses are zod-validated before being
  * persisted (A-4), behind a strip-fences fallback and one automatic retry —
  * they cost nothing when the model behaves.
  *

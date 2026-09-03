@@ -240,6 +240,46 @@ try {
   console.log(`  ${bad('FAILED')} — ${short(err)}`);
 }
 
+/* ------------------------------------- 5. vision on the text model (M4-1) */
+
+heading('5. Image input on TEXT_MODEL (needed by M4-1 expansion)');
+
+// F-7.1 sends the site photographs to the text model. Gemma has vision, but
+// this sparse variant is worth checking before M4-1 is built on the assumption.
+const ONE_PIXEL_PNG =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+
+if (!textWorks) {
+  console.log(dim('  Skipped - the text model did not answer.'));
+} else {
+  try {
+    const res = await ai.models.generateContent({
+      model: textModel,
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            { inlineData: { mimeType: 'image/png', data: ONE_PIXEL_PNG } },
+            { text: 'Jakiego koloru jest ten obraz? Odpowiedz jednym slowem.' },
+          ],
+        },
+      ],
+    });
+
+    if (res.text) {
+      console.log(`  ${ok('accepted')} - M4-1 can send the reference photos.`);
+      console.log(dim(`    replied: ${JSON.stringify(res.text.slice(0, 60))}`));
+    } else {
+      console.log(`  ${warn('no answer')} - accepted the image but said nothing.`);
+    }
+  } catch (err) {
+    console.log(`  ${bad('REJECTED')} - ${short(err)}`);
+    console.log(
+      warn('    M4-1 would have to describe the photos some other way, or use a different model.'),
+    );
+  }
+}
+
 /* ------------------------------------------------------------- full list */
 
 if (gemmas.length === 0) {
