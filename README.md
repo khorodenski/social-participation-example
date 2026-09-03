@@ -59,7 +59,13 @@ Nothing in this repository assumes a Netlify site id, team or deploy URL, so it 
 
 Netlify spends credits per build, and every push to `main` is a build. Three things keep that in check:
 
-- **Push in batches, not per commit.** Commit as often as you like; push when you actually want a deploy to test against.
+- **Work on `dev`, deploy from `main`.** `main` is Netlify's production branch and mirrors what is live. Branch deploys and deploy previews are off, so pushing `dev` costs no build while still backing the work up. Deploying is then a deliberate step:
+
+  ```
+  git checkout main && git merge dev && git push
+  git checkout dev
+  ```
+
 - **`netlify.toml` skips pointless builds.** Its `ignore` command compares the new commit against the last built one and skips the build when only tests, fixtures, `scripts/`, docs or tooling config changed.
 - **Skip a single deploy on demand** by putting `[skip netlify]` in the commit message.
 
