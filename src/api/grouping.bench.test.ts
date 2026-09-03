@@ -1,14 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { groupIdeas } from './google';
+import { ModelError, groupIdeas } from './google';
 import { makeIdeaLoad } from './__fixtures__/sampleIdeas';
 
 /**
  * Latency benchmark for the grouping call.
  *
- * The M3-1 spike produced good groups but took 118 s for 32 ideas, and N-3
- * allows ~100 ideas per session. Two minutes of "Grupuję pomysły…" in front of
- * a live audience is survivable; six is not. This measures how bad it actually
- * gets, and whether the smaller Gemma variant fixes it.
+ * Measured so far on gemma-4-31b-it: 120.7 s for 32 ideas, 104.4 s for 100.
+ * Input size is not the driver — both runs produced 8 groups, and the cost is
+ * in generating them. So the wait is roughly two minutes whatever the hall
+ * submits, which a progress screen can carry.
+ *
+ * gemma-4-26b-a4b-it answered in 35-46 s but never passed the schema. Re-run it
+ * alone to see the printed cause:
+ *
+ *   $env:BENCH_MODELS="gemma-4-26b-a4b-it"; $env:BENCH_SIZES="32"
+ *   npm run bench:grouping
  *
  * Skipped unless GOOGLE_API_KEY is set. It makes one real call per model per
  * size, so the default run is four calls and can take ten minutes. Results
@@ -39,6 +45,18 @@ interface Row {
 }
 
 const rows: Row[] = [];
+
+/** Renders whatever generateJson attached, API error or schema failure. */
+function describeCause(cause: unknown): string {
+  if (cause instanceof Error) return `${cause.name}: ${cause.message}`.replace(/\s+/g, ' ');
+  if (typeof cause === 'string') return cause;
+
+  try {
+    return JSON.stringify(cause, null, 2);
+  } catch {
+    return String(cause);
+  }
+}
 
 function report() {
   if (rows.length === 0) return;
@@ -99,7 +117,14 @@ describe.skipIf(!apiKey)('grouping latency', () => {
               groups: null,
               note: err instanceof Error ? err.message : String(err),
             });
+
             console.log(`  ${model} @ ${size}: FAILED after ${seconds.toFixed(1)}s`);
+
+            // The Polish copy is for the lecturer. This is for whoever is
+            // deciding whether the model is usable at all.
+            if (err instanceof ModelError && err.cause !== undefined) {
+              console.log(`    cause: ${describeCause(err.cause)}`);
+            }
           }
         }
 

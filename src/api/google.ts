@@ -43,8 +43,13 @@ export class ModelError extends Error {
     message: string,
     /** False when retrying cannot possibly help (e.g. nothing to group). */
     readonly retryable = true,
+    /**
+     * The underlying API error or schema failure. The UI shows `message`; this
+     * is what you read when a model that should work does not.
+     */
+    options?: { cause?: unknown },
   ) {
-    super(message);
+    super(message, options);
     this.name = 'ModelError';
   }
 }
@@ -109,6 +114,7 @@ async function generateJson<S extends z.ZodTypeAny>(
   // Annotated because `pl` is `as const`, which would otherwise pin this to the
   // literal type of the first message.
   let problem: string = pl.model.invalidResponse;
+  let cause: unknown;
 
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
@@ -125,6 +131,7 @@ async function generateJson<S extends z.ZodTypeAny>(
 
       if (!res.text) {
         problem = pl.model.emptyResponse;
+        cause = 'the model returned no text';
         continue;
       }
 
@@ -132,12 +139,18 @@ async function generateJson<S extends z.ZodTypeAny>(
       if (parsed.success) return parsed.data;
 
       problem = pl.model.invalidResponse;
+      cause = {
+        kind: 'schema',
+        issues: parsed.error.issues.slice(0, 3),
+        sample: res.text.slice(0, 400),
+      };
     } catch (err) {
       problem = describeModelError(err);
+      cause = err;
     }
   }
 
-  throw new ModelError(problem);
+  throw new ModelError(problem, true, { cause });
 }
 
 /* -------------------------------------------------------------- grouping */
