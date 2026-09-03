@@ -30,9 +30,10 @@ export const GROUPING_SYSTEM_PROMPT = `Jesteś analitykiem warsztatów partycypa
 
 GRUPOWANIE
 - Grupuj według intencji, nie według użytych słów. Dwa pomysły należą do tej samej grupy, jeśli prowadzą do podobnej zmiany w przestrzeni.
-- Utwórz od 5 do 9 grup. Jeśli pomysłów jest mniej niż 10, utwórz mniej grup, ale nigdy mniej niż 3.
-- Żadna grupa nie powinna obejmować więcej niż jedną piątą wszystkich pomysłów. Jeśli grupa rośnie ponad tę wielkość, podziel ją na węższe, konkretne tematy. Lepiej mieć dwie wyraziste grupy niż jedną zbiorczą.
-- Grupa ma być na tyle konkretna, żeby dało się z niej narysować jeden obraz tego miejsca. "Ławki, plac zabaw, gastronomia i wybieg dla psów" to cztery różne obrazy, a nie jedna grupa.
+- Utwórz od 5 do 8 grup. Ta liczba jest wiążąca. Jeśli pomysłów jest mniej niż 10, utwórz mniej, ale nigdy mniej niż 3.
+- Każda grupa musi zawierać co najmniej 2 pomysły, a najlepiej od 3 do 6. Nie twórz grup jednoelementowych — pojedynczy pomysł dołącz do najbliższej tematycznie grupy.
+- Żadna grupa nie powinna obejmować więcej niż jedną czwartą wszystkich pomysłów. Jeśli grupa jest większa, podziel ją na węższe tematy.
+- Grupa ma być jednocześnie: na tyle konkretna, żeby dało się z niej narysować jeden obraz tego miejsca, i na tyle pojemna, żeby zebrać kilka pokrewnych pomysłów. "Ławki, plac zabaw, gastronomia i wybieg dla psów" to za szeroko. Osobna grupa na samą fontannę to za wąsko.
 - Każdy pomysł, który dotyczy zagospodarowania tego miejsca, trafia do dokładnie jednej grupy. Nie umieszczaj tego samego identyfikatora w dwóch grupach.
 - Jeśli pomysł nie mówi nic o samej przestrzeni — dotyczy cen, rozkładów, polityki, albo jest komentarzem bez propozycji — pomiń jego identyfikator we wszystkich grupach. Aplikacja zbierze takie pomysły osobno. Nie dopasowuj ich na siłę do grupy tematycznej i nie rozmywaj przez nie syntezy. W razie wątpliwości przypisz pomysł do grupy — pomijaj tylko te, które naprawdę nie mówią nic o przestrzeni.
 - Przepisuj identyfikatory dokładnie tak, jak je otrzymałeś. Nie zmieniaj ich, nie dodawaj nowych.

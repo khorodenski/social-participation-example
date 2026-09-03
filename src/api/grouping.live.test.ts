@@ -47,14 +47,28 @@ describe.skipIf(!apiKey)('groupIdeas against the real model', () => {
     expect(groups.length).toBeGreaterThanOrEqual(3);
     expect(groups.length).toBeLessThanOrEqual(10);
 
-    // A group holding a quarter of the room is a weak podium card and a muddy
-    // image prompt. "Inne" is exempt; it is a bucket by definition.
-    for (const group of groups) {
-      if (group.label === pl.common.other) continue;
+    // Groups have to land in a usable band. Too broad is a muddy image prompt in
+    // M4-1; too narrow makes a podium out of one-idea cards. "Inne" is exempt,
+    // being a bucket by definition.
+    const real = groups.filter((group) => group.label !== pl.common.other);
+
+    for (const group of real) {
       expect(
         group.ideaIds.length,
         `group too broad to visualise: ${group.label} holds ${group.ideaIds.length}`,
       ).toBeLessThanOrEqual(Math.ceil(SAMPLE_IDEAS.length / 4));
+    }
+
+    // F-6.1/F-6.3: the podium is the top three by count, so those three have to
+    // carry real weight. Singletons on a projected podium look like an error.
+    const podium = [...real].sort((a, b) => b.ideaIds.length - a.ideaIds.length).slice(0, 3);
+
+    expect(podium).toHaveLength(3);
+    for (const group of podium) {
+      expect(
+        group.ideaIds.length,
+        `podium group too thin: ${group.label} holds ${group.ideaIds.length}`,
+      ).toBeGreaterThanOrEqual(3);
     }
 
     /* --------------------------------------------------- F-5.3 coverage */
