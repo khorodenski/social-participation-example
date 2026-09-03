@@ -258,9 +258,13 @@ export async function testApiKey(apiKey: string): Promise<boolean> {
 
 /**
  * F-7.1 — multimodal call producing one image prompt for a group.
+ *
  * M4-1 builds the multimodal user turn (label, synthesis, resource text and
  * resource images as inline data) and sends it through `generateJson` with
  * {@link EXPANSION_SYSTEM_PROMPT} and `expansionResponseSchema`.
+ *
+ * Image input is confirmed on TEXT_MODEL (`npm run verify:models`, section 5),
+ * so the site photographs can go straight to this model. No fallback needed.
  */
 export async function expandGroup(
   _apiKey: string,
@@ -277,9 +281,14 @@ export async function expandGroup(
  * F-8.1 — generates one image from a prompt plus reference images.
  *
  * M5-1: read the image from `candidates[0].content.parts` and take the part
- * with `inlineData`. Do NOT use `res.data` — this model also returns a
- * `thoughtSignature` part and the getter concatenates every data part.
- * `scripts/verify-models.mjs` has the working pattern.
+ * with `inlineData`. Do NOT use `res.data` — this model sometimes returns a
+ * `thoughtSignature` part alongside the image, and the getter concatenates
+ * every data part. `scripts/verify-models.mjs` has the working pattern.
+ *
+ * The model returns JPEG, around 1 MB, not the PNG that D-3 names in the key
+ * `sessions/<id>/images/<gid>.png`. Store the real `mimeType` as the blob's
+ * content type (`_blobs.ts` already does) and derive the key's extension from
+ * it rather than hardcoding `.png`.
  */
 export async function generateImage(
   _apiKey: string,
