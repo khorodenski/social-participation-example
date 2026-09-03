@@ -6,13 +6,17 @@ import { z } from 'zod';
  * Milestone 3 starts with a spike that authors these against ~30 sample Polish
  * ideas and a reference photo until the output is stable, pure JSON.
  *
- * Two constraints to design around (verify during the spike):
- *  - Gemma models on the Gemini API have no `system` role, so the "system"
- *    text must be prepended to the first user turn.
- *  - Structured-output config (`responseMimeType` / `responseSchema`) may not
- *    be available for Gemma, so the prompt itself must forbid prose and code
- *    fences, and the response is still zod-validated with a strip-fences
- *    fallback plus one automatic retry.
+ * Confirmed against `gemma-4-31b-it` with the lecturer's key
+ * (`npm run verify:models`):
+ *  - `systemInstruction` IS accepted, so these prompts go in the system slot
+ *    rather than being prepended to the user turn.
+ *  - `responseMimeType: 'application/json'` IS accepted, so structured output
+ *    is available and the model does not need to be talked out of code fences.
+ *  - A strict Polish JSON prompt already returns clean, parseable JSON.
+ *
+ * Responses are still zod-validated before being persisted (A-4). Keep the
+ * strip-fences fallback and the single automatic retry as cheap insurance —
+ * they cost nothing when the model behaves.
  */
 
 /** TODO(M3): grouping system prompt — strict JSON, Polish, anonymised. */

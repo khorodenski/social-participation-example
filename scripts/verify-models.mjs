@@ -206,9 +206,18 @@ try {
     contents: 'A small empty city square at golden hour, wide architectural photo.',
   });
 
-  if (res.data) {
-    const bytes = Math.round((res.data.length * 3) / 4 / 1024);
-    console.log(`  ${ok('OK')} — got image data, about ${bytes} KB.`);
+  // Read the image out of the parts rather than via res.data: this model also
+  // returns non-data parts (thoughtSignature), and the .data getter silently
+  // concatenates every data part and warns. M5-1 should use this pattern.
+  const parts = res.candidates?.[0]?.content?.parts ?? [];
+  const imagePart = parts.find((part) => part.inlineData?.data);
+
+  if (imagePart) {
+    const b64 = imagePart.inlineData.data;
+    const bytes = Math.round((b64.length * 3) / 4 / 1024);
+    const mime = imagePart.inlineData.mimeType ?? 'unknown';
+    console.log(`  ${ok('OK')} — got one image part, about ${bytes} KB, ${mime}.`);
+    console.log(dim(`    ${parts.length} part(s) in the response; ${parts.length - 1} non-image.`));
   } else {
     console.log(`  ${warn('No image')} — model replied with text instead: ${JSON.stringify((res.text ?? '').slice(0, 120))}`);
   }
