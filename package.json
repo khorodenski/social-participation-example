@@ -14,7 +14,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "verify:models": "node scripts/verify-models.mjs"
   },
   "dependencies": {
     "@google/genai": "^1.16.0",
@@ -43,5 +44,6 @@
     "typescript-eslint": "^8.41.0",
     "vite": "^6.3.5",
     "vitest": "^3.2.4"
-  }
+  },
+  "packageManager": "npm@10.9.2"
 }

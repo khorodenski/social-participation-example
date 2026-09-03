@@ -12,17 +12,16 @@ import type { Group, Idea, Resource } from '../state/session';
 
 /**
  * Text + vision model used for grouping and prompt expansion.
- * TODO(M3): confirm the exact published id with `ai.models.list()` before the
- * rehearsal — this is the single place to change it.
+ * Id confirmed against `ai.models.list()` with the lecturer's key.
  */
-export const TEXT_MODEL = 'gemma-4-27b-it';
+export const TEXT_MODEL = 'gemma-4-31b-it';
 
 /**
  * Image generation model ("Nano Banana 2"). Generation only — never used to
  * describe images (that is the text model's job, A-2).
- * TODO(M3): confirm the exact published id with `ai.models.list()`.
+ * Id confirmed by the lecturer.
  */
-export const IMAGE_MODEL = 'gemini-3-pro-image-preview';
+export const IMAGE_MODEL = 'gemini-3.1-flash-image';
 
 export function createGoogleClient(apiKey: string): GoogleGenAI {
   return new GoogleGenAI({ apiKey });
