@@ -87,7 +87,9 @@ console.log(`  ${available.length} models total.`);
 
 console.log(`\n  ${bold('Gemma candidates for TEXT_MODEL:')}`);
 if (gemmas.length === 0) {
-  console.log(warn('    none — this key may not have Gemma access, or the family is named differently.'));
+  console.log(
+    warn('    none — this key may not have Gemma access, or the family is named differently.'),
+  );
   console.log(dim('    Full list is printed at the end so you can pick by hand.'));
 } else {
   for (const m of gemmas) {
@@ -140,7 +142,9 @@ if (!textWorks) {
     });
     console.log(`  systemInstruction: ${ok('accepted')} — you can use a real system prompt.`);
   } catch (err) {
-    console.log(`  systemInstruction: ${warn('rejected')} — prepend the rules to the user turn instead.`);
+    console.log(
+      `  systemInstruction: ${warn('rejected')} — prepend the rules to the user turn instead.`,
+    );
     console.log(dim(`    ${short(err)}`));
   }
 
@@ -153,7 +157,9 @@ if (!textWorks) {
     });
     console.log(`  responseMimeType:  ${ok('accepted')} — structured output is available.`);
   } catch (err) {
-    console.log(`  responseMimeType:  ${warn('rejected')} — the prompt must forbid prose and fences itself.`);
+    console.log(
+      `  responseMimeType:  ${warn('rejected')} — the prompt must forbid prose and fences itself.`,
+    );
     console.log(dim(`    ${short(err)}`));
   }
 
@@ -173,7 +179,10 @@ if (!textWorks) {
     const res = await ai.models.generateContent({ model: textModel, contents: instruction });
     const raw = (res.text ?? '').trim();
     const fenced = /^```/.test(raw);
-    const stripped = raw.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
+    const stripped = raw
+      .replace(/^```(?:json)?\s*/i, '')
+      .replace(/```\s*$/, '')
+      .trim();
 
     let parsed = null;
     try {
@@ -186,7 +195,11 @@ if (!textWorks) {
       console.log(
         `  JSON discipline:   ${ok('good')}${fenced ? warn(' (wrapped in code fences — keep the strip-fences fallback)') : ''}`,
       );
-      console.log(dim(`    got ${parsed.groups.length} group(s), first label: ${JSON.stringify(parsed.groups[0]?.label)}`));
+      console.log(
+        dim(
+          `    got ${parsed.groups.length} group(s), first label: ${JSON.stringify(parsed.groups[0]?.label)}`,
+        ),
+      );
     } else {
       console.log(`  JSON discipline:   ${bad('drifted')} — the prompt needs more work in M3-1.`);
       console.log(dim(`    ${raw.slice(0, 200)}`));
@@ -219,7 +232,9 @@ try {
     console.log(`  ${ok('OK')} — got one image part, about ${bytes} KB, ${mime}.`);
     console.log(dim(`    ${parts.length} part(s) in the response; ${parts.length - 1} non-image.`));
   } else {
-    console.log(`  ${warn('No image')} — model replied with text instead: ${JSON.stringify((res.text ?? '').slice(0, 120))}`);
+    console.log(
+      `  ${warn('No image')} — model replied with text instead: ${JSON.stringify((res.text ?? '').slice(0, 120))}`,
+    );
   }
 } catch (err) {
   console.log(`  ${bad('FAILED')} — ${short(err)}`);
@@ -232,4 +247,6 @@ if (gemmas.length === 0) {
   for (const m of available) console.log(`  ${clean(m.name)}`);
 }
 
-console.log(`\n${dim('S-2 is done when TEXT_MODEL is listed, section 2 says OK, and section 4 returns image data.')}\n`);
+console.log(
+  `\n${dim('S-2 is done when TEXT_MODEL is listed, section 2 says OK, and section 4 returns image data.')}\n`,
+);

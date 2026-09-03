@@ -87,6 +87,22 @@ export const pl = {
     remove: 'Usuń',
   },
 
+  groups: {
+    otherSynthesis: 'Pomysły, które nie trafiły do żadnej z pozostałych grup.',
+    ideaCount: 'pomysłów',
+  },
+
+  /** Failures of the Google Gen AI calls. M6-2 extends this copy. */
+  model: {
+    invalidResponse: 'Model zwrócił nieprawidłową odpowiedź. Spróbuj ponownie.',
+    emptyResponse: 'Model nie zwrócił odpowiedzi. Spróbuj ponownie.',
+    badKey: 'Klucz API jest nieprawidłowy lub nie ma uprawnień.',
+    quota: 'Przekroczono limit zapytań do modelu. Spróbuj ponownie za chwilę.',
+    blocked: 'Model odrzucił zapytanie.',
+    network: 'Nie udało się połączyć z modelem.',
+    noIdeas: 'Brak pomysłów do pogrupowania.',
+  },
+
   errors: {
     notFound: 'Nie znaleziono sesji.',
     invalidBody: 'Nieprawidłowe dane wejściowe.',
