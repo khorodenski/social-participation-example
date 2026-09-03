@@ -103,6 +103,7 @@ async function generateJson<S extends z.ZodTypeAny>(
   systemInstruction: string,
   contents: ContentListUnion,
   schema: S,
+  model: string = TEXT_MODEL,
 ): Promise<z.infer<S>> {
   const ai = createGoogleClient(apiKey);
   // Annotated because `pl` is `as const`, which would otherwise pin this to the
@@ -112,7 +113,7 @@ async function generateJson<S extends z.ZodTypeAny>(
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
       const res = await ai.models.generateContent({
-        model: TEXT_MODEL,
+        model,
         contents,
         config: {
           systemInstruction,
@@ -196,7 +197,16 @@ export function normalizeGroups(response: GroupingResponse, ideas: Idea[]): Grou
 }
 
 /** F-5.1 — one batch call that turns all ideas of a session into groups. */
-export async function groupIdeas(apiKey: string, ideas: Idea[]): Promise<Group[]> {
+export async function groupIdeas(
+  apiKey: string,
+  ideas: Idea[],
+  /**
+   * Overridable so the latency benchmark can compare the Gemma variants,
+   * and so a slow model can be swapped on rehearsal day. The app always
+   * uses the default.
+   */
+  model: string = TEXT_MODEL,
+): Promise<Group[]> {
   if (ideas.length === 0) throw new ModelError(pl.model.noIdeas, false);
 
   const listing = ideas.map((idea) => `${idea.id}: ${collapse(idea.text)}`).join('\n');
@@ -207,6 +217,7 @@ export async function groupIdeas(apiKey: string, ideas: Idea[]): Promise<Group[]
     GROUPING_SYSTEM_PROMPT,
     contents,
     groupingResponseSchema,
+    model,
   );
 
   return normalizeGroups(response, ideas);

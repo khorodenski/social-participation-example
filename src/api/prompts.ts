@@ -31,7 +31,8 @@ export const GROUPING_SYSTEM_PROMPT = `Jesteś analitykiem warsztatów partycypa
 GRUPOWANIE
 - Grupuj według intencji, nie według użytych słów. Dwa pomysły należą do tej samej grupy, jeśli prowadzą do podobnej zmiany w przestrzeni.
 - Utwórz od 4 do 8 grup. Jeśli materiał jest zbyt jednorodny lub pomysłów jest mniej niż 8, utwórz mniej grup, ale nigdy mniej niż 2.
-- Każdy pomysł trafia do dokładnie jednej grupy. Nie pomijaj żadnego identyfikatora i nie umieszczaj tego samego identyfikatora w dwóch grupach.
+- Każdy pomysł, który dotyczy zagospodarowania tego miejsca, trafia do dokładnie jednej grupy. Nie umieszczaj tego samego identyfikatora w dwóch grupach.
+- Jeśli pomysł nie mówi nic o samej przestrzeni — dotyczy cen, rozkładów, polityki, albo jest komentarzem bez propozycji — pomiń jego identyfikator we wszystkich grupach. Aplikacja zbierze takie pomysły osobno. Nie dopasowuj ich na siłę do grupy tematycznej i nie rozmywaj przez nie syntezy.
 - Przepisuj identyfikatory dokładnie tak, jak je otrzymałeś. Nie zmieniaj ich, nie dodawaj nowych.
 - Nie twórz grupy zbiorczej ("Inne", "Pozostałe", "Różne") — aplikacja dodaje ją sama, jeśli będzie potrzebna.
 

@@ -50,3 +50,30 @@ export const SAMPLE_IDEAS: Idea[] = RAW.map((text, index) => ({
 
 /** A name that must not survive into any synthesis. */
 export const NAME_IN_IDEAS = 'Krystyn';
+
+/**
+ * Pads the sample set up to `count` ideas for the latency benchmark (N-3 allows
+ * ~100 per session). The padding cycles the originals with a filler clause, so
+ * this measures how the call scales with input size — NOT cluster quality.
+ */
+export function makeIdeaLoad(count: number): Idea[] {
+  const suffixes = [
+    'szczególnie po zmroku',
+    'zwłaszcza w weekendy',
+    'przy wejściu od strony peronów',
+    'najlepiej po stronie zachodniej',
+    'choćby w małej skali na początek',
+  ];
+
+  return Array.from({ length: count }, (_, index) => {
+    const base = RAW[index % RAW.length] ?? RAW[0] ?? 'pomysł';
+    const round = Math.floor(index / RAW.length);
+    const suffix = round === 0 ? '' : `, ${suffixes[(round - 1) % suffixes.length]}`;
+
+    return {
+      id: `i${index + 1}`,
+      text: `${base}${suffix}`,
+      createdAt: 1_700_000_000_000 + index * 1_000,
+    };
+  });
+}

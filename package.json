@@ -16,7 +16,8 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "verify:models": "node scripts/verify-models.mjs",
-    "spike:grouping": "vitest run src/api/grouping.live.test.ts"
+    "spike:grouping": "vitest run src/api/grouping.live.test.ts",
+    "bench:grouping": "vitest run src/api/grouping.bench.test.ts"
   },
   "dependencies": {
     "@google/genai": "^1.16.0",
