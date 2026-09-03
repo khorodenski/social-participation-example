@@ -152,10 +152,6 @@
   background: var(--bg-elevated);
   padding: var(--sp-2) var(--sp-4);
   gap: var(--sp-4);
-  /* Netlify pins a "Powered by Netlify" badge to the bottom-right corner on
-     the free tier. It is theirs to show, so leave that corner empty instead of
-     putting controls under it. */
-  padding-right: var(--badge-reserve);
 }
 
 .control-bar__stage {
@@ -165,10 +161,10 @@
   color: var(--text-dim);
 }
 
-/* Controls sit next to the stage label on the left, away from the badge. */
 .control-bar__actions {
   display: flex;
   gap: var(--sp-2);
+  margin-left: auto;
 }
 
 .control-bar__status {
@@ -349,14 +345,5 @@
   .session-list__item {
     flex-direction: column;
     align-items: stretch;
-  }
-}
-
-/* Narrow screens put the badge above the bar rather than beside it, so the
-   reserved strip is only needed where they share a row. */
-@media (max-width: 700px) {
-  .control-bar {
-    padding-right: var(--sp-4);
-    padding-bottom: 4.5rem;
   }
 }

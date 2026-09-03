@@ -43,4 +43,4 @@ Vite + React 18 + TypeScript (strict) + `react-router-dom` v6. `@netlify/functio
 - One blob per idea (`sessions/<id>/ideas/<ideaId>.json`) so concurrent attendee writes never race.
 - Every model response is zod-validated before it is persisted; invalid responses surface as a retryable error.
 - **Netlify credits are finite and the project must fit the free tier.** Every push to `main` costs a build. Commit freely, push in batches, and only when a deploy is actually wanted. `netlify.toml`'s `ignore` command already skips builds for test-only, script-only and docs-only commits; `[skip netlify]` in a commit message skips one on demand.
-- Netlify pins a "Powered by Netlify" badge to the bottom-right corner on the free tier. Keep that corner free of controls; `--badge-reserve` in `theme.css` is the width set aside for it.
+- Netlify shows a "Powered by Netlify" badge in the bottom-right corner by default. It is **turned off for this project in the Netlify dashboard**, so that corner is usable. If it ever reappears there, it will sit over the control bar's buttons and, later, over the gallery's third image.
