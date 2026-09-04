@@ -75,7 +75,7 @@ function StageView({
     case 'visualizing':
       return <VisualizeStage session={session} onRendered={onRendered} />;
     case 'gallery':
-      return <GalleryStage />;
+      return <GalleryStage session={session} />;
   }
 }
 
@@ -243,13 +243,14 @@ export default function SessionPage() {
     });
   }
 
-  // F-9.1 — the gallery opens only once all three pictures exist.
-  if (session.stage === 'gallery' || (session.stage === 'visualizing' && allImagesReady(session))) {
+  // F-9.1 — the gallery opens only once all three pictures exist. It is not
+  // offered again once open: a permanently disabled button is clutter on the
+  // last screen the room looks at.
+  if (session.stage === 'visualizing' && allImagesReady(session)) {
     actions.push({
       key: 'gallery',
       label: pl.common.showGallery,
-      primary: session.stage !== 'gallery',
-      disabled: session.stage === 'gallery',
+      primary: true,
       onSelect: () => void update({ stage: 'gallery' }),
     });
   }

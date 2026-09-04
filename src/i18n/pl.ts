@@ -96,6 +96,14 @@ export const pl = {
     ready: 'Gotowe',
   },
 
+  gallery: {
+    open: 'Otwórz na pełnym ekranie',
+    previous: 'Poprzedni obraz',
+    next: 'Następny obraz',
+    noImages: 'Nie ma jeszcze żadnego obrazu.',
+    hint: 'Kliknij obraz, aby otworzyć go na pełnym ekranie.',
+  },
+
   visualize: {
     working: 'Generuję obraz…',
     hint: 'Trzy obrazy powstają równolegle.',

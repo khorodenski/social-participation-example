@@ -956,6 +956,156 @@
   }
 }
 
+/* ---------------------------------------------------------- gallery stage */
+
+/* The one stage that stays a centred hero: three pictures and nothing else. */
+.gallery {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.gallery__row {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-4);
+  width: 100%;
+}
+
+.gallery__cell {
+  min-width: 0;
+}
+
+.gallery__open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  transition: border-color 120ms ease;
+}
+
+.gallery__open:hover {
+  border-color: var(--accent);
+}
+
+.gallery__img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery__label {
+  display: block;
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-md);
+  font-weight: 600;
+  text-align: center;
+  background: var(--bg-elevated);
+}
+
+.gallery__hint {
+  text-align: center;
+}
+
+/* Narrow screens are not the target, but a stacked column beats a squashed row. */
+@media (max-width: 900px) {
+  .gallery__row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------------------------------- fullscreen viewer */
+
+/* Fixed rather than only relying on the Fullscreen API, so this looks the same
+   whether or not the request was granted (F-9.2). */
+.viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+.viewer__img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* F-9.2 — small, bottom-centre, and legible over any picture. */
+.viewer__label {
+  position: absolute;
+  bottom: var(--sp-6);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--sp-2) var(--sp-6);
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.6);
+  color: #fff;
+  font-size: var(--fs-md);
+  font-weight: 600;
+  white-space: nowrap;
+  max-width: calc(100vw - 12rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.viewer__arrow,
+.viewer__close {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 0.45);
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 120ms ease;
+}
+
+.viewer__arrow:hover,
+.viewer__close:hover {
+  background: rgb(0 0 0 / 0.75);
+}
+
+.viewer__arrow {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4rem;
+  height: 4rem;
+  font-size: 2.5rem;
+}
+
+.viewer__arrow--prev {
+  left: var(--sp-6);
+}
+
+.viewer__arrow--next {
+  right: var(--sp-6);
+}
+
+.viewer__close {
+  top: var(--sp-6);
+  right: var(--sp-6);
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1.75rem;
+}
+
 /* ------------------------------------------------------------- settings */
 
 .visually-hidden {
