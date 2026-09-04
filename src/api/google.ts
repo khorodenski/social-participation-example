@@ -1,6 +1,7 @@
 import type { ContentListUnion, GoogleGenAI } from '@google/genai';
 import type { z } from 'zod';
 import { pl } from '../i18n/pl';
+import { asInlineImage } from '../state/assets';
 import type { Group, Idea, Resource } from '../state/session';
 import {
   EXPANSION_SYSTEM_PROMPT,
@@ -41,6 +42,20 @@ export const TEXT_MODEL = 'gemma-4-26b-a4b-it';
  * fallback if flash renders look weak at projector size.
  */
 export const IMAGE_MODEL = 'gemini-3.1-flash-image';
+
+/**
+ * The model's own default is 1K. 2K is chosen because F-9.2 puts one image
+ * fullscreen on a 1080p projector, where 1K is visibly soft, while three
+ * side by side in the gallery would be fine either way.
+ *
+ * **Still unsettled with the lecturer.** `npm run spike:image` reports the
+ * time and the file size for both, so that conversation can happen with
+ * numbers rather than opinions.
+ */
+export const IMAGE_SIZE = '2K';
+
+/** Matches the projector and the three-up gallery (F-9.1). */
+export const IMAGE_ASPECT_RATIO = '16:9';
 
 /**
  * The SDK is loaded on demand, not at start-up.
@@ -329,23 +344,77 @@ export async function expandGroup(
 }
 
 /**
- * F-8.1 — generates one image from a prompt plus reference images.
+ * F-8.1 — one image from one prompt plus the `useAsReference` photographs.
  *
- * M5-1: read the image from `candidates[0].content.parts` and take the part
- * with `inlineData`. Do NOT use `res.data` — this model sometimes returns a
- * `thoughtSignature` part alongside the image, and the getter concatenates
- * every data part. `scripts/verify-models.mjs` has the working pattern.
+ * Two traps here, both found in M3-1's `verify:models` run and both cheap to
+ * fall into again:
  *
- * The model returns JPEG, around 1 MB, not the PNG that D-3 names in the key
- * `sessions/<id>/images/<gid>.png`. Store the real `mimeType` as the blob's
- * content type (`_blobs.ts` already does) and derive the key's extension from
- * it rather than hardcoding `.png`.
+ *  - **Never read `res.data`.** This model returns a `thoughtSignature` part
+ *    alongside the picture, and that getter silently concatenates every data
+ *    part and warns. The image is the part with `inlineData`.
+ *  - **It returns JPEG, around 1 MB, not the PNG D-3 names in the key.** The
+ *    real `mimeType` comes back with the bytes and the caller stores it, so the
+ *    key's extension is derived rather than assumed.
+ *
+ * No automatic retry, unlike `generateJson`. A JSON shape failure is worth an
+ * instant second attempt; an image failure is usually a safety block or quota,
+ * where retrying burns another minute for the same answer. F-8.2 gives the
+ * lecturer a per-card "Ponów" instead, which is the retry that knows whether it
+ * is worth it.
  */
 export async function generateImage(
-  _apiKey: string,
-  _prompt: string,
-  /** Base64 payloads of the `useAsReference` images. */
-  _referenceImages: string[],
+  apiKey: string,
+  prompt: string,
+  /** Base64 payloads, or `data:` URLs, of the `useAsReference` images (F-2.3). */
+  referenceImages: string[],
+  options: { imageSize?: string; aspectRatio?: string; model?: string } = {},
 ): Promise<{ base64: string; mimeType: string }> {
-  throw new Error('not implemented');
+  const model = options.model ?? IMAGE_MODEL;
+  const startedAt = Date.now();
+
+  const references = referenceImages
+    .map((payload) => asInlineImage(payload, 'image/jpeg'))
+    .filter((image): image is NonNullable<typeof image> => image !== null)
+    .map((inlineData) => ({ inlineData }));
+
+  try {
+    const res = await createGoogleClient(apiKey).then((ai) =>
+      ai.models.generateContent({
+        model,
+        // References first, then the instruction, the same order image input
+        // was confirmed in for the text model.
+        contents: [{ role: 'user', parts: [...references, { text: prompt }] }],
+        config: {
+          imageConfig: {
+            imageSize: options.imageSize ?? IMAGE_SIZE,
+            aspectRatio: options.aspectRatio ?? IMAGE_ASPECT_RATIO,
+          },
+        },
+      }),
+    );
+
+    const parts = res.candidates?.[0]?.content?.parts ?? [];
+    const image = parts.find((part) => part.inlineData?.data)?.inlineData;
+
+    const seconds = ((Date.now() - startedAt) / 1000).toFixed(1);
+
+    if (!image?.data) {
+      // A refusal comes back as text where the picture should have been, and
+      // that text is the only clue about why.
+      console.debug(`[social-voting] ${model}: no image after ${seconds}s`);
+      throw new ModelError(res.text ? pl.model.blocked : pl.model.emptyResponse, true, {
+        cause: { kind: 'no-image', parts: parts.length, text: res.text?.slice(0, 300) },
+      });
+    }
+
+    const mimeType = image.mimeType ?? 'image/jpeg';
+    console.debug(
+      `[social-voting] ${model}: image in ${seconds}s, ${Math.round((image.data.length * 3) / 4 / 1024)} KB, ${mimeType}`,
+    );
+
+    return { base64: image.data, mimeType };
+  } catch (err) {
+    if (err instanceof ModelError) throw err;
+    throw new ModelError(describeModelError(err), true, { cause: err });
+  }
 }

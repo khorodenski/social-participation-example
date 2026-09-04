@@ -106,6 +106,31 @@ export async function encodeAt(img: HTMLImageElement, maxEdge: number): Promise<
   return toJpeg(canvas);
 }
 
+/**
+ * F-8.4 — the longest edge a generated image is stored at.
+ *
+ * Matches the 2K the image model is asked for, so this re-encodes rather than
+ * shrinks: see `recompress`.
+ */
+export const GENERATED_MAX_EDGE = 2048;
+
+/**
+ * Decode and re-encode at {@link JPEG_QUALITY}, keeping the resolution.
+ *
+ * The image model returns 2K JPEGs at about 4.4 MB — roughly 1.9 bytes per
+ * pixel, which is near-lossless and far more than a projector can show. That
+ * size is also a trap: Netlify base64-encodes a function's binary payload, so
+ * 4.4 MB arrives as about 5.9 MB against a 6 MB platform limit. It would have
+ * worked in `netlify dev` and failed on the real deploy.
+ *
+ * Re-encoding keeps every pixel and drops the file by roughly an order of
+ * magnitude.
+ */
+export async function recompress(file: Blob, maxEdge: number): Promise<Blob> {
+  const img = await decode(file);
+  return encodeAt(img, maxEdge);
+}
+
 export interface StoredResourceImage {
   /** D-3 key of the 2048 px copy. */
   imageKey: string;

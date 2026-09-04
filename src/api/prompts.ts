@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { contentTypeForKey } from '../state/assets';
+import { asInlineImage, contentTypeForKey } from '../state/assets';
 import type { Group, Resource } from '../state/session';
 
 /**
@@ -117,9 +117,6 @@ type TextPart = { text: string };
 type ImagePart = { inlineData: { mimeType: string; data: string } };
 export type ExpansionPart = TextPart | ImagePart;
 
-/** `data:image/jpeg;base64,...` — accepted so callers can pass either form. */
-const DATA_URL = /^data:([a-z]+\/[a-z0-9.+-]+);base64,([\s\S]*)$/i;
-
 /**
  * F-2.4 downscales every uploaded photograph to JPEG, so that is the answer
  * when a payload carries no type of its own and its key does not say either.
@@ -127,18 +124,9 @@ const DATA_URL = /^data:([a-z]+\/[a-z0-9.+-]+);base64,([\s\S]*)$/i;
 const FALLBACK_IMAGE_TYPE = 'image/jpeg';
 
 function imagePart(resource: Resource, payload: string): ImagePart | null {
-  const trimmed = payload.trim();
-  if (trimmed.length === 0) return null;
-
-  const asDataUrl = DATA_URL.exec(trimmed);
-  if (asDataUrl?.[1] && asDataUrl[2]) {
-    const data = asDataUrl[2].trim();
-    if (data.length === 0) return null;
-    return { inlineData: { mimeType: asDataUrl[1].toLowerCase(), data } };
-  }
-
   const fromKey = resource.imageKey ? contentTypeForKey(resource.imageKey) : null;
-  return { inlineData: { mimeType: fromKey ?? FALLBACK_IMAGE_TYPE, data: trimmed } };
+  const inline = asInlineImage(payload, fromKey ?? FALLBACK_IMAGE_TYPE);
+  return inline ? { inlineData: inline } : null;
 }
 
 function collapse(text: string): string {

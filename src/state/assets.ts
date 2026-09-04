@@ -63,6 +63,43 @@ export function contentTypeForKey(key: string): string | null {
   return found?.[0] ?? null;
 }
 
+export interface InlineImage {
+  mimeType: string;
+  /** Base64 payload, with no `data:` prefix. */
+  data: string;
+}
+
+/**
+ * Splits `data:image/jpeg;base64,...` into its parts, or returns null for a
+ * plain base64 payload that carries no type of its own.
+ *
+ * Shared because both model calls send images and neither can guess: expansion
+ * sends the lecturer's photographs to the text model, and image generation
+ * sends the `useAsReference` ones to the image model.
+ */
+const DATA_URL = /^data:([a-z]+\/[a-z0-9.+-]+);base64,([\s\S]*)$/i;
+
+export function splitDataUrl(payload: string): InlineImage | null {
+  const match = DATA_URL.exec(payload.trim());
+  if (!match?.[1] || !match[2]) return null;
+
+  const data = match[2].trim();
+  if (data.length === 0) return null;
+
+  return { mimeType: match[1].toLowerCase(), data };
+}
+
+/**
+ * A payload ready for `inlineData`, whatever form the caller had it in.
+ * Falls back to the given type, which is what F-2.4 produces.
+ */
+export function asInlineImage(payload: string, fallbackType: string): InlineImage | null {
+  const trimmed = payload.trim();
+  if (trimmed.length === 0) return null;
+
+  return splitDataUrl(trimmed) ?? { mimeType: fallbackType, data: trimmed };
+}
+
 export interface AssetKeyParts {
   sessionId: string;
   kind: AssetKind;

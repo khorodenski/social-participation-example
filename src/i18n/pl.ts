@@ -96,6 +96,14 @@ export const pl = {
     ready: 'Gotowe',
   },
 
+  visualize: {
+    working: 'Generuję obraz…',
+    hint: 'Trzy obrazy powstają równolegle.',
+    failed: 'Nie udało się wygenerować obrazu.',
+    noPrompt: 'Brak promptu dla tej grupy.',
+    badImageType: 'Model zwrócił nieobsługiwany format obrazu.',
+  },
+
   voting: {
     startVoting: 'Rozpocznij głosowanie',
     closeVoting: 'Zakończ głosowanie',
