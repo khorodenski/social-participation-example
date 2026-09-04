@@ -10,7 +10,9 @@ import {
   type SessionSummary,
 } from '../state/session';
 import { ideaSchema } from '../state/session';
+import { ASSET_MAX_BYTES, isAssetKey, normalizeContentType } from '../state/assets';
 import { z } from 'zod';
+import { pl } from '../i18n/pl';
 
 /**
  * Typed fetch wrappers for the Netlify Functions API.
@@ -122,12 +124,24 @@ export function getIdeaCount(sessionId: string): Promise<{ count: number }> {
 
 const assetResultSchema = z.object({ key: z.string() });
 
-/** Uploads a binary asset (resource image or generated image) to Blobs. */
+/**
+ * Uploads a binary asset (resource image or generated image) to Blobs.
+ *
+ * The three checks below are the same ones `assets.ts` makes server-side, from
+ * the same module. They are here so a bad key or an oversized photo fails on
+ * the lecturer's own screen while there is still time to fix it, rather than as
+ * a 400 in the middle of a lecture. Build keys with `resourceAssetKey` or
+ * `generatedImageKey` and they always pass.
+ */
 export async function putAsset(
   key: string,
   data: Blob,
   contentType: string,
 ): Promise<{ key: string }> {
+  if (!isAssetKey(key)) throw new ApiError(pl.errors.assetKey, 400);
+  if (!normalizeContentType(contentType)) throw new ApiError(pl.errors.assetType, 415);
+  if (data.size > ASSET_MAX_BYTES) throw new ApiError(pl.errors.assetTooLarge, 413);
+
   const res = await fetch(`${API_BASE}/assets/${key}`, {
     method: 'PUT',
     headers: { 'content-type': contentType },
