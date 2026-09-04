@@ -87,6 +87,15 @@ export const pl = {
     noGroups: 'Model nie zwrócił żadnej grupy.',
   },
 
+  expansion: {
+    working: 'Piszę prompt…',
+    hint: 'Trzy prompty powstają równolegle. To potrwa do dwóch minut.',
+    promptLabel: 'Prompt do obrazu',
+    failed: 'Nie udało się napisać promptu.',
+    noSelection: 'Nie wybrano żadnej grupy.',
+    ready: 'Gotowe',
+  },
+
   voting: {
     startVoting: 'Rozpocznij głosowanie',
     closeVoting: 'Zakończ głosowanie',

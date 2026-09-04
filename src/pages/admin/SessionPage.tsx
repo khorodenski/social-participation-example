@@ -10,6 +10,7 @@ import SetupStage from '../../stages/SetupStage';
 import VisualizeStage from '../../stages/VisualizeStage';
 import VotingStage from '../../stages/VotingStage';
 import { pl } from '../../i18n/pl';
+import { allExpansionsReady } from '../../state/expansion';
 import {
   initialSelection,
   orderSelection,
@@ -17,7 +18,7 @@ import {
   toggleSelection,
 } from '../../state/results';
 import { useSession } from '../../state/useSession';
-import type { Group, Session, Stage } from '../../state/session';
+import type { Expansion, Group, Session, Stage } from '../../state/session';
 
 /**
  * The projected screen. Renders whichever stage the session is persisted in
@@ -42,11 +43,12 @@ const NO_IDS: string[] = [];
 interface StageViewProps {
   session: Session;
   onGrouped: (groups: Group[]) => Promise<void>;
+  onExpanded: (expansions: Record<string, Expansion>) => Promise<void>;
   selectedIds: string[];
   onToggleGroup: (id: string) => void;
 }
 
-function StageView({ session, onGrouped, selectedIds, onToggleGroup }: StageViewProps) {
+function StageView({ session, onGrouped, onExpanded, selectedIds, onToggleGroup }: StageViewProps) {
   switch (session.stage) {
     case 'draft':
       return <SetupStage session={session} />;
@@ -60,7 +62,7 @@ function StageView({ session, onGrouped, selectedIds, onToggleGroup }: StageView
       );
     case 'expanding':
     case 'expanded':
-      return <ExpansionStage />;
+      return <ExpansionStage session={session} onExpanded={onExpanded} />;
     case 'visualizing':
       return <VisualizeStage />;
     case 'gallery':
@@ -106,6 +108,31 @@ export default function SessionPage() {
       await update({ groups: newGroups, selectedGroupIds: [], stage: 'results' });
     },
     [update],
+  );
+
+  /**
+   * F-7.2/F-7.5 — merges a batch of prompts into what is already stored and
+   * moves to `expanded` once every chosen group has one.
+   *
+   * Merging rather than replacing is what lets a retry write one prompt without
+   * dropping the two that already succeeded: a PATCH replaces `expansions`
+   * wholesale.
+   */
+  const onExpanded = useCallback(
+    async (arrived: Record<string, Expansion>) => {
+      if (!session) return;
+
+      const expansions = { ...session.expansions, ...arrived };
+
+      // Only ever advance from the expansion screens. A "Rozwiń ponownie" that
+      // lands after the lecturer has already moved on would otherwise drag the
+      // projector back from `visualizing` to `expanded`.
+      const onExpansionScreen = session.stage === 'expanding' || session.stage === 'expanded';
+      const complete = onExpansionScreen && allExpansionsReady({ ...session, expansions });
+
+      await update(complete ? { expansions, stage: 'expanded' } : { expansions });
+    },
+    [session, update],
   );
 
   if (loading && !session) {
@@ -175,6 +202,17 @@ export default function SessionPage() {
     });
   }
 
+  // F-7.5 — "Wizualizuj" appears only once every chosen group has a prompt,
+  // which is exactly when the stage becomes `expanded`.
+  if (session.stage === 'expanded' && allExpansionsReady(session)) {
+    actions.push({
+      key: 'visualize',
+      label: pl.common.visualize,
+      primary: true,
+      onSelect: () => void update({ stage: 'visualizing' }),
+    });
+  }
+
   if (session.stage !== 'draft') {
     actions.push({
       key: 'reset',
@@ -190,6 +228,7 @@ export default function SessionPage() {
       <StageView
         session={session}
         onGrouped={onGrouped}
+        onExpanded={onExpanded}
         selectedIds={selectedIds}
         onToggleGroup={onToggleGroup}
       />

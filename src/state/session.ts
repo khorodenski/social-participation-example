@@ -26,8 +26,20 @@ export const resourceSchema = z.object({
   type: z.enum(['image', 'text']),
   /** Present when type === 'text'. */
   text: z.string().optional(),
-  /** Blob key, present when type === 'image' (D-3). */
+  /** Blob key of the 2048 px reference copy, present when type === 'image' (D-3). */
   imageKey: z.string().optional(),
+  /**
+   * Blob key of the small copy expansion reads instead of the reference.
+   *
+   * Photographs are stored twice: the reference goes to the image model, this
+   * one goes to the text model. Image cost scales with area, so ~768 px against
+   * 2048 px is about a seventh of the tokens, and a photograph was measured to
+   * add roughly 35 s to an expansion that already takes a minute.
+   *
+   * Optional because `M2-4` is what writes it. Until then `expandSessionGroup`
+   * falls back to `imageKey`, which is correct but slow.
+   */
+  previewKey: z.string().optional(),
   /** F-2.3 — pass this image to the image model as a visual reference. */
   useAsReference: z.boolean().default(false),
 });

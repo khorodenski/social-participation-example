@@ -371,10 +371,10 @@
   border-radius: 999px;
   background: linear-gradient(90deg, transparent, var(--accent), transparent);
   background-size: 200% 100%;
-  animation: grouping-sweep 2.4s ease-in-out infinite;
+  animation: sweep 2.4s ease-in-out infinite;
 }
 
-@keyframes grouping-sweep {
+@keyframes sweep {
   from {
     background-position: 200% 0;
   }
@@ -388,6 +388,152 @@
     animation: none;
     background: var(--accent);
     opacity: 0.5;
+  }
+}
+
+/* --------------------------------------------------------- expansion stage */
+
+/* A list of cards, not a centred hero — same opt-out as the results screen. */
+.page--session > .expansion {
+  align-items: stretch;
+  justify-content: flex-start;
+  text-align: left;
+  overflow-y: auto;
+}
+
+.expansion {
+  width: 100%;
+  max-width: 76rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.expansion__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-6);
+  flex-wrap: wrap;
+}
+
+.expansion__tally {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+
+.expansion__cards {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: var(--sp-4);
+  align-items: stretch;
+}
+
+/* ---------------------------------------------------------- prompt card */
+
+.prompt-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-6);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  min-width: 0;
+}
+
+.prompt-card.is-done {
+  border-color: var(--border-strong);
+}
+
+.prompt-card.is-failed {
+  border-color: var(--danger);
+}
+
+.prompt-card__label {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.prompt-card__synthesis {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.prompt-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  align-items: flex-start;
+  margin-top: auto;
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--border);
+}
+
+.prompt-card__heading {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* The prompt is long and English, and it is read on a projector rather than
+   scanned. Mono keeps it visibly a machine instruction, not prose. */
+.prompt-card__prompt {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+/* A re-run that failed, on a card that still holds a good prompt. Quiet: the
+   prompt above it is the thing being read. */
+.prompt-card__note {
+  font-size: var(--fs-xs);
+}
+
+.prompt-card__again {
+  align-self: flex-start;
+}
+
+/* The same slow breath as the grouping stage: this one sits on a projector for
+   a hundred seconds, and a fast animation makes a wait feel longer. */
+.prompt-card__pulse {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  background-size: 200% 100%;
+  animation: sweep 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prompt-card__pulse {
+    animation: none;
+    opacity: 0.5;
+  }
+}
+
+/* 720p projection: three cards plus their prompts need the room. */
+@media (max-height: 800px) {
+  .page--session > .expansion {
+    padding: var(--sp-4) var(--sp-8);
+    gap: var(--sp-3);
+  }
+
+  .prompt-card {
+    padding: var(--sp-4);
+    gap: var(--sp-2);
   }
 }
 
