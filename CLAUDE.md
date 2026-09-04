@@ -12,6 +12,7 @@ It is short-lived and rehearsed — no accounts, no anti-spam, no long-term pers
 - **Polish UI.** All user-facing text, and all LLM output (labels, syntheses), is Polish. Every string lives in `src/i18n/pl.ts` — never inline Polish copy elsewhere.
 - **Netlify only.** Static site + Netlify Functions + Netlify Blobs on the free tier. No other backend services. Functions are a thin, key-less persistence layer.
 - **`docs/` is local and authoritative.** `docs/01-project-description.md`, `docs/02-requirements.md` and `docs/03-implementation-plan.md` are the source of truth, and `docs/05-handoff.md` carries the current state, the decisions already taken and the traps already hit. **Read the handoff first**; it is shorter than the plan and says which parts of the plan turned out to be wrong. The folder is git-ignored on purpose — never commit it.
+- **The build-order artifact is the other half of the handoff, and must be kept current.** <https://claude.ai/code/artifact/27973c5c-e885-4efc-89e3-f2731051e548> holds the dependency graph, the critical path, the item table and the risk list. Update it in the same session as the work, not afterwards: read it first (`action: "read"` with that URL), then publish back to the **same URL** so the link never changes. `docs/05-handoff.md` has a checklist of what to change there.
 - **Windows host.** npm scripts must stay cross-platform; no bash-only syntax in `package.json`.
 
 ## Stack
