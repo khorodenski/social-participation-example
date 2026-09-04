@@ -134,9 +134,22 @@ export default function ExpansionStage({ session, onExpanded }: ExpansionStagePr
       });
       setRunning((current) => [...current, ...ids]);
 
+      /**
+       * The batch's own clock, because `generateJson` only times each call
+       * separately and three sequential calls log the same per-call numbers as
+       * three parallel ones. This line is the only thing that tells the two
+       * apart: with three groups it should read close to the slowest call, not
+       * close to their sum.
+       */
+      const startedAt = Date.now();
+
       // F-7.2 — all of them at once, and one failure keeps its neighbours.
       const settled = await Promise.allSettled(
         targets.map(async (group) => [group.id, await expandSessionGroup(session, group)] as const),
+      );
+
+      console.debug(
+        `[social-voting] expansion: ${ids.length} group(s) in ${((Date.now() - startedAt) / 1000).toFixed(1)}s wall clock`,
       );
 
       const arrived: Record<string, string> = {};
