@@ -172,6 +172,194 @@
   color: var(--text-muted);
 }
 
+/* ------------------------------------------------------------- setup stage */
+
+/* Not a projected hero but a form and a list, so it opts out of the centring
+   above — the same opt-out results, expansion and visualize make. */
+.page--session > .setup {
+  align-items: stretch;
+  justify-content: flex-start;
+  text-align: left;
+  overflow-y: auto;
+}
+
+.setup {
+  width: 100%;
+  max-width: 60rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+.setup__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-6);
+  flex-wrap: wrap;
+}
+
+/* The only lecturer screen read from a laptop rather than from the back of a
+   hall, so the title drops a step below the projected --fs-2xl. */
+.setup__title {
+  font-size: var(--fs-xl);
+}
+
+.setup__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.setup__unsaved {
+  font-size: var(--fs-sm);
+  color: var(--danger);
+}
+
+.setup__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.setup__section {
+  font-size: var(--fs-md);
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------- resource editor */
+
+.resources {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.resources__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.resources__title {
+  font-size: var(--fs-md);
+  font-weight: 600;
+}
+
+.resources__list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.resources__add {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+/* A native file input cannot be restyled, so a real button clicks it. */
+.resources__file {
+  display: none;
+}
+
+.resources__references {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.resource {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--sp-4);
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-4);
+}
+
+.resource__preview {
+  display: flex;
+  align-items: flex-start;
+}
+
+.resource__thumb {
+  width: 9rem;
+  height: 6rem;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.resource__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 9rem;
+  height: 6rem;
+  padding: var(--sp-2);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.resource__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+
+.resource__text {
+  min-height: 5rem;
+}
+
+.resource__reference {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+/* Wide enough for "Czy na pewno?", so arming the delete does not widen the
+   column and shove the arrows sideways under the cursor. */
+.resource__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  width: 8.5rem;
+}
+
+.resource__nudge {
+  padding: var(--sp-1) var(--sp-3);
+  line-height: 1;
+}
+
+/* A narrow window or a laptop in portrait: the thumbnail and the buttons stop
+   competing with the fields for the width. */
+@media (max-width: 720px) {
+  .resource {
+    grid-template-columns: 1fr;
+  }
+
+  .resource__side {
+    flex-direction: row;
+    width: auto;
+  }
+}
+
 /* ------------------------------------------------------------ voting stage */
 
 .voting {

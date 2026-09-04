@@ -136,13 +136,35 @@ export const pl = {
     thankYouAgain: 'Twój pomysł już do nas dotarł.',
   },
 
+  setup: {
+    detailsTitle: 'Sesja',
+    detailsHint: 'Tytuł i wprowadzenie widzą uczestnicy na swoich telefonach.',
+    unsaved: 'Niezapisane zmiany',
+    discard: 'Odrzuć zmiany',
+    saveFirst: 'Zapisz zmiany, zanim rozpoczniesz głosowanie.',
+    attendeeLink: 'Adres dla uczestników',
+  },
+
   resources: {
     title: 'Materiały kontekstowe',
-    addImage: 'Dodaj obraz',
-    addText: 'Dodaj tekst',
+    hint: 'Zdjęcia i notatki o miejscu. Model czyta je, kiedy pisze prompty do obrazów.',
+    empty: 'Nie dodano jeszcze żadnego materiału.',
+    addImage: 'Dodaj zdjęcie',
+    addText: 'Dodaj notatkę',
     description: 'Opis',
-    useAsReference: 'Użyj jako referencji obrazu',
+    descriptionPlaceholder: 'np. Widok od strony dworca',
+    text: 'Treść notatki',
+    textPlaceholder: 'np. Plac ma 40 na 25 metrów, od południa zamyka go ściana kamienicy.',
+    useAsReference: 'Referencja dla obrazu',
+    referenceCount: 'Zdjęcia dla modelu obrazu',
+    typeImage: 'Zdjęcie',
+    typeText: 'Notatka',
     remove: 'Usuń',
+    moveUp: 'Wyżej',
+    moveDown: 'Niżej',
+    uploading: 'Przygotowuję zdjęcie…',
+    uploadFailed: 'Nie udało się wgrać zdjęcia.',
+    imageMissing: 'Brak podglądu zdjęcia.',
   },
 
   groups: {

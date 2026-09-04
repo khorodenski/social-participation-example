@@ -24,8 +24,13 @@ interface UseSession {
   /** Set while a transition is in flight, so controls can disable themselves. */
   busy: boolean;
   reload: () => Promise<void>;
-  update: (patch: SessionPatch) => Promise<void>;
-  reset: () => Promise<void>;
+  /**
+   * Resolves false when the write failed, so a caller holding unsaved edits —
+   * the setup screen — can keep them instead of dropping them silently. Every
+   * other caller ignores it and reads `error` from the control bar as before.
+   */
+  update: (patch: SessionPatch) => Promise<boolean>;
+  reset: () => Promise<boolean>;
 }
 
 function messageOf(err: unknown): string {
@@ -56,13 +61,15 @@ export function useSession(id: string | undefined): UseSession {
   }, [reload]);
 
   /** Wraps a transition so every caller gets the same busy/error handling. */
-  const run = useCallback(async (action: () => Promise<Session>) => {
+  const run = useCallback(async (action: () => Promise<Session>): Promise<boolean> => {
     setBusy(true);
     try {
       setSession(await action());
       setError(null);
+      return true;
     } catch (err) {
       setError(messageOf(err));
+      return false;
     } finally {
       setBusy(false);
     }
@@ -70,15 +77,15 @@ export function useSession(id: string | undefined): UseSession {
 
   const update = useCallback(
     async (patch: SessionPatch) => {
-      if (!id) return;
-      await run(() => patchSession(id, patch));
+      if (!id) return false;
+      return run(() => patchSession(id, patch));
     },
     [id, run],
   );
 
   const reset = useCallback(async () => {
-    if (!id) return;
-    await run(() => resetSession(id));
+    if (!id) return false;
+    return run(() => resetSession(id));
   }, [id, run]);
 
   return { session, loading, error, busy, reload, update, reset };

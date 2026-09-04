@@ -19,7 +19,14 @@ import {
   toggleSelection,
 } from '../../state/results';
 import { useSession } from '../../state/useSession';
-import type { Expansion, GeneratedImage, Group, Session, Stage } from '../../state/session';
+import type {
+  Expansion,
+  GeneratedImage,
+  Group,
+  Session,
+  SessionPatch,
+  Stage,
+} from '../../state/session';
 
 /**
  * The projected screen. Renders whichever stage the session is persisted in
@@ -46,6 +53,9 @@ interface StageViewProps {
   onGrouped: (groups: Group[]) => Promise<void>;
   onExpanded: (expansions: Record<string, Expansion>) => Promise<void>;
   onRendered: (images: Record<string, GeneratedImage>) => Promise<void>;
+  onSaveSetup: (patch: SessionPatch) => Promise<boolean>;
+  onSetupDirty: (dirty: boolean) => void;
+  busy: boolean;
   selectedIds: string[];
   onToggleGroup: (id: string) => void;
 }
@@ -55,12 +65,22 @@ function StageView({
   onGrouped,
   onExpanded,
   onRendered,
+  onSaveSetup,
+  onSetupDirty,
+  busy,
   selectedIds,
   onToggleGroup,
 }: StageViewProps) {
   switch (session.stage) {
     case 'draft':
-      return <SetupStage session={session} />;
+      return (
+        <SetupStage
+          session={session}
+          onSave={onSaveSetup}
+          onDirtyChange={onSetupDirty}
+          busy={busy}
+        />
+      );
     case 'voting':
       return <VotingStage session={session} />;
     case 'grouping':
@@ -90,6 +110,12 @@ export default function SessionPage() {
   // pre-selection stands. Kept here rather than in ResultsStage because "Dalej"
   // is a control-bar action and needs to read it.
   const [picked, setPicked] = useState<string[] | null>(null);
+
+  // F-1.1/F-2.1 — the setup screen edits a draft, and "Rozpocznij głosowanie"
+  // is in the control bar rather than on that screen. Without this, typing a
+  // title and pressing start would begin voting on the old one, and the only
+  // way back to `draft` is a reset.
+  const [setupDirty, setSetupDirty] = useState(false);
 
   // Re-grouping replaces every group, and an id from the previous run means
   // nothing against the new ones. `initialSelection` filters stale ids too, but
@@ -190,6 +216,7 @@ export default function SessionPage() {
       key: 'start',
       label: pl.voting.startVoting,
       primary: true,
+      disabled: setupDirty,
       onSelect: () => void update({ stage: 'voting' }),
     });
   }
@@ -272,6 +299,9 @@ export default function SessionPage() {
         onGrouped={onGrouped}
         onExpanded={onExpanded}
         onRendered={onRendered}
+        onSaveSetup={update}
+        onSetupDirty={setSetupDirty}
+        busy={busy}
         selectedIds={selectedIds}
         onToggleGroup={onToggleGroup}
       />
