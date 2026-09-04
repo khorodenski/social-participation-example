@@ -393,42 +393,280 @@
 
 /* ----------------------------------------------------------- results stage */
 
-.results {
-  width: 100%;
-  max-width: 56rem;
+/* Every other stage is a centred hero — see the .page--session > section rule
+   above. Results is not a hero but a list:
+   it fills the width, starts at the top, and scrolls when there are more
+   groups than fit on the projector. */
+.page--session > .results {
+  align-items: stretch;
+  justify-content: flex-start;
+  text-align: left;
+  overflow-y: auto;
 }
 
-.results__list {
+.results {
+  width: 100%;
+  max-width: 68rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+.results__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-6);
+  flex-wrap: wrap;
+}
+
+.results__counter {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.results__tally {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--success);
+}
+
+.results__counter.is-incomplete .results__tally {
+  color: var(--danger);
+}
+
+/* F-6.1 — the three prominent ones, side by side on a projector and stacked
+   on anything narrower. */
+.results__podium {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--sp-4);
+  align-items: stretch;
+}
+
+.results__rest {
   list-style: none;
   padding: 0;
   display: flex;
   flex-direction: column;
   gap: var(--sp-2);
-  width: 100%;
 }
 
-.results__group {
+/* ------------------------------------------------------------- group card */
+
+.group-card {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--sp-6);
-  padding: var(--sp-3) var(--sp-4);
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  text-align: left;
+  overflow: hidden;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease;
 }
 
-.results__label {
+.group-card.is-selected {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg-elevated));
+}
+
+.group-card--muted {
+  background: none;
+  border-style: dashed;
+}
+
+/* The card body is the button that opens the synthesis (F-6.2). It carries no
+   ideas, only the label and the count. */
+.group-card__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  background: none;
+  border: 0;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.group-card__body:hover {
+  background: var(--bg-inset);
+}
+
+.group-card--podium {
+  flex-direction: column;
+  align-items: stretch;
+  border-radius: var(--radius-lg);
+}
+
+.group-card--podium .group-card__body {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-6);
+  min-height: 11rem;
+}
+
+.group-card__rank {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.group-card__label {
+  flex: 1;
+  min-width: 0;
   font-size: var(--fs-lg);
   font-weight: 600;
+  line-height: 1.2;
 }
 
-.results__count {
+.group-card--podium .group-card__label {
+  font-size: var(--fs-xl);
+  letter-spacing: -0.01em;
+}
+
+.group-card__count {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  flex: none;
+}
+
+.group-card__number {
   font-size: var(--fs-xl);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--accent);
+  line-height: 1;
+}
+
+.group-card--podium .group-card__number {
+  font-size: var(--fs-2xl);
+}
+
+.group-card__unit {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+/* A sibling of the body, never a child: a button inside a button is invalid
+   HTML and the browser picks which click it swallows. */
+.group-card__pick {
+  flex: none;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  background: none;
+  border: 0;
+  border-left: 1px solid var(--border);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.group-card--podium .group-card__pick {
+  border-left: 0;
+  border-top: 1px solid var(--border);
+}
+
+.group-card__pick:hover {
+  background: var(--bg-inset);
+  color: var(--text);
+}
+
+.group-card__pick[aria-pressed='true'] {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.group-card__pick[aria-pressed='true']::before {
+  content: '✓';
+}
+
+.group-card__pick--off {
+  color: var(--text-dim);
+  font-size: var(--fs-xs);
+  cursor: default;
+}
+
+.group-card__pick--off:hover {
+  background: none;
+  color: var(--text-dim);
+}
+
+/* 720p projection: the podium has to leave room for the list under it, or the
+   compact groups and the catch-all fall off the bottom of the screen. */
+@media (max-height: 800px) {
+  .page--session > .results {
+    padding: var(--sp-4) var(--sp-8);
+    gap: var(--sp-3);
+  }
+
+  .group-card--podium .group-card__body {
+    min-height: 8rem;
+    gap: var(--sp-3);
+    padding: var(--sp-4);
+  }
+}
+
+/* -------------------------------------------------------- synthesis modal */
+
+.synthesis {
+  background: var(--bg-elevated);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 0;
+  width: min(52rem, calc(100vw - 2rem));
+  /* The reset zeroes every margin, which also removes the UA stylesheet's
+     `margin: auto` and drops a modal dialog into the top-left corner. */
+  margin: auto;
+}
+
+.synthesis::backdrop {
+  background: rgb(0 0 0 / 0.6);
+}
+
+.synthesis__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-8);
+}
+
+.synthesis__title {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.synthesis__text {
+  font-size: var(--fs-lg);
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.synthesis__actions {
+  display: flex;
+  justify-content: flex-end;
 }
 
 /* ------------------------------------------------------------- settings */

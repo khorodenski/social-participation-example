@@ -78,6 +78,12 @@ export const pl = {
 
   results: {
     groupAgain: 'Grupuj ponownie',
+    selectionHint: 'Wybierz grupy do wizualizacji',
+    select: 'Wybierz',
+    selected: 'Wybrano',
+    showSynthesis: 'Pokaż syntezę grupy',
+    synthesisTitle: 'Synteza',
+    otherHint: 'Ta grupa nie przechodzi do wizualizacji.',
     noGroups: 'Model nie zwrócił żadnej grupy.',
   },
 
@@ -116,7 +122,9 @@ export const pl = {
 
   groups: {
     otherSynthesis: 'Pomysły, które nie trafiły do żadnej z pozostałych grup.',
-    ideaCount: 'pomysłów',
+    ideaCountOne: 'pomysł',
+    ideaCountFew: 'pomysły',
+    ideaCountMany: 'pomysłów',
   },
 
   /** Failures of the Google Gen AI calls. M6-2 extends this copy. */
@@ -142,3 +150,19 @@ export const pl = {
 } as const;
 
 export type Strings = typeof pl;
+
+/**
+ * Polish counts three ways — 1 pomysł, 2-4 pomysły, 5+ pomysłów — and the teens
+ * take the last form. This number sits on a projected screen, so getting it
+ * wrong is visible to a whole room.
+ */
+export function ideaCountLabel(count: number): string {
+  const n = Math.abs(Math.trunc(count));
+  if (n === 1) return pl.groups.ideaCountOne;
+
+  const last = n % 10;
+  const lastTwo = n % 100;
+  if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)) return pl.groups.ideaCountFew;
+
+  return pl.groups.ideaCountMany;
+}

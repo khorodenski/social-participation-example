@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ControlBar from '../../components/ControlBar';
 import Spinner from '../../components/Spinner';
@@ -10,6 +10,12 @@ import SetupStage from '../../stages/SetupStage';
 import VisualizeStage from '../../stages/VisualizeStage';
 import VotingStage from '../../stages/VotingStage';
 import { pl } from '../../i18n/pl';
+import {
+  initialSelection,
+  orderSelection,
+  requiredSelectionCount,
+  toggleSelection,
+} from '../../state/results';
 import { useSession } from '../../state/useSession';
 import type { Group, Session, Stage } from '../../state/session';
 
@@ -29,12 +35,18 @@ const STAGE_LABELS: Record<Stage, string> = {
   gallery: pl.stages.gallery,
 };
 
+/** Stable empty arrays, so the selection memo does not rerun on every render. */
+const NO_GROUPS: Group[] = [];
+const NO_IDS: string[] = [];
+
 interface StageViewProps {
   session: Session;
   onGrouped: (groups: Group[]) => Promise<void>;
+  selectedIds: string[];
+  onToggleGroup: (id: string) => void;
 }
 
-function StageView({ session, onGrouped }: StageViewProps) {
+function StageView({ session, onGrouped, selectedIds, onToggleGroup }: StageViewProps) {
   switch (session.stage) {
     case 'draft':
       return <SetupStage session={session} />;
@@ -43,7 +55,9 @@ function StageView({ session, onGrouped }: StageViewProps) {
     case 'grouping':
       return <GroupingStage session={session} onGrouped={onGrouped} />;
     case 'results':
-      return <ResultsStage groups={session.groups} />;
+      return (
+        <ResultsStage groups={session.groups} selectedIds={selectedIds} onToggle={onToggleGroup} />
+      );
     case 'expanding':
     case 'expanded':
       return <ExpansionStage />;
@@ -58,11 +72,38 @@ export default function SessionPage() {
   const { id } = useParams<{ id: string }>();
   const { session, loading, error, busy, update, reset } = useSession(id);
 
+  const groups = session?.groups ?? NO_GROUPS;
+  const savedSelection = session?.selectedGroupIds ?? NO_IDS;
+
+  // F-6.3 — null means "nothing chosen by hand yet", so the podium's own
+  // pre-selection stands. Kept here rather than in ResultsStage because "Dalej"
+  // is a control-bar action and needs to read it.
+  const [picked, setPicked] = useState<string[] | null>(null);
+
+  // Re-grouping replaces every group, and an id from the previous run means
+  // nothing against the new ones. `initialSelection` filters stale ids too, but
+  // dropping the hand-made choice here is what makes "Grupuj ponownie" feel
+  // like a fresh start rather than a half-remembered one.
+  const signature = groups.map((group) => `${group.id}:${group.ideaIds.length}`).join('|');
+  useEffect(() => {
+    setPicked(null);
+  }, [signature]);
+
+  const selectedIds = useMemo(
+    () => picked ?? initialSelection(groups, savedSelection),
+    [picked, groups, savedSelection],
+  );
+
+  const onToggleGroup = useCallback(
+    (groupId: string) => setPicked((current) => toggleSelection(current ?? selectedIds, groupId)),
+    [selectedIds],
+  );
+
   // F-5.4 — grouping is persisted in one write with the stage change, so a
   // reload during the hand-off never lands on results with no groups.
   const onGrouped = useCallback(
-    async (groups: Group[]) => {
-      await update({ groups, selectedGroupIds: [], stage: 'results' });
+    async (newGroups: Group[]) => {
+      await update({ groups: newGroups, selectedGroupIds: [], stage: 'results' });
     },
     [update],
   );
@@ -84,7 +125,7 @@ export default function SessionPage() {
   }
 
   // The stage machine from the plan. Later milestones add the transitions out
-  // of results, expanded and visualizing; the ones here are M1's.
+  // of expanded and visualizing; the ones here are M1's and M3's.
   const actions = [];
 
   if (session.stage === 'draft') {
@@ -108,6 +149,23 @@ export default function SessionPage() {
   }
 
   if (session.stage === 'results') {
+    const required = requiredSelectionCount(groups);
+
+    // F-6.4 — exactly the required number, or the button stays dead. The
+    // selection is written in podium order alongside the stage change, so
+    // expansion never opens on a stage with nothing chosen.
+    actions.push({
+      key: 'next',
+      label: pl.common.next,
+      primary: true,
+      disabled: required === 0 || selectedIds.length !== required,
+      onSelect: () =>
+        void update({
+          selectedGroupIds: orderSelection(groups, selectedIds),
+          stage: 'expanding',
+        }),
+    });
+
     // F-5.4 — rehearsal control: re-running overwrites the previous groups.
     actions.push({
       key: 'regroup',
@@ -129,7 +187,12 @@ export default function SessionPage() {
 
   return (
     <main className="page page--session">
-      <StageView session={session} onGrouped={onGrouped} />
+      <StageView
+        session={session}
+        onGrouped={onGrouped}
+        selectedIds={selectedIds}
+        onToggleGroup={onToggleGroup}
+      />
       <ControlBar
         stageLabel={STAGE_LABELS[session.stage]}
         actions={actions}
