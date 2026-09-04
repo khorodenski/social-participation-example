@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { contentTypeForKey } from '../state/assets';
+import type { Group, Resource } from '../state/session';
 
 /**
  * System prompts and response schemas for the two text-model calls (A-3).
@@ -97,6 +99,109 @@ Return exactly one JSON object of this shape:
 {"prompt":"string"}
 No text before or after, no commentary, no markdown fences.`;
 
+/**
+ * F-7.1 — the user turn that goes with {@link EXPANSION_SYSTEM_PROMPT}.
+ *
+ * Pure, and here rather than in `google.ts`, so the Polish scaffolding sits
+ * with the prompt it belongs to and can be tested without an API key.
+ *
+ * Order matters: the system prompt says the model receives the theme first and
+ * the site materials second, so that is the order the parts are built in. An
+ * image resource contributes its description as text and then the photograph
+ * itself as `inlineData`, which is the shape image input was confirmed in
+ * (`npm run verify:models`, section 5).
+ */
+
+/** A part of a multimodal user turn. Structural, so no SDK import is needed. */
+type TextPart = { text: string };
+type ImagePart = { inlineData: { mimeType: string; data: string } };
+export type ExpansionPart = TextPart | ImagePart;
+
+/** `data:image/jpeg;base64,...` — accepted so callers can pass either form. */
+const DATA_URL = /^data:([a-z]+\/[a-z0-9.+-]+);base64,([\s\S]*)$/i;
+
+/**
+ * F-2.4 downscales every uploaded photograph to JPEG, so that is the answer
+ * when a payload carries no type of its own and its key does not say either.
+ */
+const FALLBACK_IMAGE_TYPE = 'image/jpeg';
+
+function imagePart(resource: Resource, payload: string): ImagePart | null {
+  const trimmed = payload.trim();
+  if (trimmed.length === 0) return null;
+
+  const asDataUrl = DATA_URL.exec(trimmed);
+  if (asDataUrl?.[1] && asDataUrl[2]) {
+    const data = asDataUrl[2].trim();
+    if (data.length === 0) return null;
+    return { inlineData: { mimeType: asDataUrl[1].toLowerCase(), data } };
+  }
+
+  const fromKey = resource.imageKey ? contentTypeForKey(resource.imageKey) : null;
+  return { inlineData: { mimeType: fromKey ?? FALLBACK_IMAGE_TYPE, data: trimmed } };
+}
+
+function collapse(text: string): string {
+  return text.replace(/\s+/g, ' ').trim();
+}
+
+function block(...lines: string[]): TextPart {
+  return { text: lines.filter((line) => line.length > 0).join('\n') };
+}
+
+export function buildExpansionContents(
+  group: Group,
+  resources: Resource[],
+  /** Base64 payloads for the image resources, keyed by resource id. */
+  resourceImages: Record<string, string>,
+): ExpansionPart[] {
+  const parts: ExpansionPart[] = [
+    block(
+      'TEMAT',
+      collapse(group.label),
+      '',
+      'SYNTEZA',
+      collapse(group.synthesis) || 'Brak syntezy.',
+    ),
+  ];
+
+  const material: ExpansionPart[] = [];
+
+  for (const resource of resources) {
+    const description = collapse(resource.description);
+
+    if (resource.type === 'text') {
+      const body = collapse(resource.text ?? '');
+      if (body.length === 0 && description.length === 0) continue;
+      material.push(block('NOTATKA', description, body));
+      continue;
+    }
+
+    // An image whose payload never arrived still carries its description, and a
+    // written note about the place beats dropping the material altogether.
+    const payload = resourceImages[resource.id];
+    const image = payload === undefined ? null : imagePart(resource, payload);
+
+    if (image === null) {
+      if (description.length === 0) continue;
+      material.push(block('NOTATKA', description));
+      continue;
+    }
+
+    material.push(block('ZDJĘCIE MIEJSCA', description), image);
+  }
+
+  if (material.length === 0) {
+    // Say so rather than sending nothing. The system prompt has a rule for
+    // having no photographs, and silence is not the same as being told.
+    parts.push(block('MATERIAŁY O MIEJSCU', 'Brak materiałów. Oprzyj się wyłącznie na syntezie.'));
+    return parts;
+  }
+
+  parts.push(block('MATERIAŁY O MIEJSCU'), ...material);
+  return parts;
+}
+
 /* --------------------------------------------------------------- schemas */
 
 const rawGroupSchema = z.object({
@@ -156,7 +261,15 @@ export const groupingResponseSchema = z.preprocess(
 export type GroupingResponse = z.infer<typeof groupingResponseSchema>;
 
 /** F-7.1 — the expansion response: one image prompt. */
+/**
+ * Trimmed before the length check: a whitespace-only prompt passes `min(1)`
+ * and then puts a blank card on stage, where `generateJson`'s retry would have
+ * had a second go at it.
+ */
 export const expansionResponseSchema = z.object({
-  prompt: z.string().min(1),
+  prompt: z
+    .string()
+    .transform((text) => text.trim())
+    .pipe(z.string().min(1)),
 });
 export type ExpansionResponse = z.infer<typeof expansionResponseSchema>;

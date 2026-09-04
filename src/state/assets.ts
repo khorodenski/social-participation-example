@@ -48,6 +48,21 @@ export function extensionForContentType(contentType: string): string | null {
   return ASSET_CONTENT_TYPES[contentType.toLowerCase()] ?? null;
 }
 
+/**
+ * The reverse: what a stored key's bytes are. The store keeps the real content
+ * type as metadata and `GET /api/assets` serves that, so this is only for
+ * callers holding a key and a payload but no response headers — M4-1 sending a
+ * photograph to the model as `inlineData`, which needs a mime type of its own.
+ */
+export function contentTypeForKey(key: string): string | null {
+  const parts = parseAssetKey(key);
+  if (!parts) return null;
+
+  const wanted = parts.extension === 'jpeg' ? 'jpg' : parts.extension;
+  const found = Object.entries(ASSET_CONTENT_TYPES).find(([, ext]) => ext === wanted);
+  return found?.[0] ?? null;
+}
+
 export interface AssetKeyParts {
   sessionId: string;
   kind: AssetKind;

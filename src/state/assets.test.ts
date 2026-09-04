@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   ASSET_MAX_BYTES,
+  contentTypeForKey,
   extensionForContentType,
   generatedImageKey,
   isAssetKey,
@@ -94,6 +95,29 @@ describe('extensionForContentType', () => {
 
   it('returns null for anything else', () => {
     expect(extensionForContentType('application/pdf')).toBeNull();
+  });
+});
+
+describe('contentTypeForKey', () => {
+  it('reads the type back out of a key', () => {
+    expect(contentTypeForKey('sessions/k7x2p9/resources/r1.png')).toBe('image/png');
+    expect(contentTypeForKey('sessions/k7x2p9/resources/r1.webp')).toBe('image/webp');
+  });
+
+  it('treats .jpg and .jpeg the same', () => {
+    expect(contentTypeForKey('sessions/k7x2p9/resources/r1.jpg')).toBe('image/jpeg');
+    expect(contentTypeForKey('sessions/k7x2p9/images/g1.jpeg')).toBe('image/jpeg');
+  });
+
+  it('returns null for a key the endpoint would refuse', () => {
+    expect(contentTypeForKey('sessions/index.json')).toBeNull();
+  });
+
+  it('round-trips whatever the builders produce', () => {
+    for (const type of ['image/jpeg', 'image/png', 'image/webp']) {
+      const key = resourceAssetKey('k7x2p9', 'r1', type);
+      expect(contentTypeForKey(key!), type).toBe(type);
+    }
   });
 });
 

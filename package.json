@@ -17,6 +17,7 @@
     "test": "vitest run",
     "verify:models": "node scripts/verify-models.mjs",
     "spike:grouping": "vitest run src/api/grouping.live.test.ts",
+    "spike:expansion": "vitest run src/api/expansion.live.test.ts",
     "bench:grouping": "vitest run src/api/grouping.bench.test.ts"
   },
   "dependencies": {

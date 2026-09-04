@@ -5,6 +5,8 @@ import type { Group, Idea, Resource } from '../state/session';
 import {
   EXPANSION_SYSTEM_PROMPT,
   GROUPING_SYSTEM_PROMPT,
+  buildExpansionContents,
+  expansionResponseSchema,
   groupingResponseSchema,
   type GroupingResponse,
 } from './prompts';
@@ -288,24 +290,42 @@ export async function testApiKey(apiKey: string): Promise<void> {
 }
 
 /**
- * F-7.1 — multimodal call producing one image prompt for a group.
+ * F-7.1 — one multimodal call turning a chosen group into an image prompt.
  *
- * M4-1 builds the multimodal user turn (label, synthesis, resource text and
- * resource images as inline data) and sends it through `generateJson` with
- * {@link EXPANSION_SYSTEM_PROMPT} and `expansionResponseSchema`.
+ * The user turn is built by `buildExpansionContents`: the theme first, then
+ * every resource, with each photograph inlined as base64 next to its own
+ * description. Image input on this model is confirmed (`npm run verify:models`,
+ * section 5), so the site photographs go straight to it with no fallback.
  *
- * Image input is confirmed on TEXT_MODEL (`npm run verify:models`, section 5),
- * so the site photographs can go straight to this model. No fallback needed.
+ * Resources are optional. The system prompt has a rule for having none, and the
+ * builder says so explicitly rather than sending an empty turn, which is what
+ * makes this callable before the resource editor (M2-3) exists.
+ *
+ * The prompt it returns is English on purpose (A-3): it is fed to the image
+ * model, never shown to the room. Only the heading above it stays Polish.
  */
 export async function expandGroup(
-  _apiKey: string,
-  _group: Group,
-  _resources: Resource[],
+  apiKey: string,
+  group: Group,
+  resources: Resource[],
   /** Base64 JPEG/PNG payloads for the image resources, keyed by resource id. */
-  _resourceImages: Record<string, string>,
+  resourceImages: Record<string, string>,
+  /** Overridable for the same reason as `groupIdeas`: benchmarks and rehearsal day. */
+  model: string = TEXT_MODEL,
 ): Promise<string> {
-  void EXPANSION_SYSTEM_PROMPT;
-  throw new Error('not implemented');
+  const contents = [
+    { role: 'user', parts: buildExpansionContents(group, resources, resourceImages) },
+  ];
+
+  const response = await generateJson(
+    apiKey,
+    EXPANSION_SYSTEM_PROMPT,
+    contents,
+    expansionResponseSchema,
+    model,
+  );
+
+  return response.prompt;
 }
 
 /**
