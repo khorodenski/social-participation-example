@@ -11,6 +11,7 @@ import VisualizeStage from '../../stages/VisualizeStage';
 import VotingStage from '../../stages/VotingStage';
 import { pl } from '../../i18n/pl';
 import { allExpansionsReady } from '../../state/expansion';
+import { allImagesReady } from '../../state/visualize';
 import {
   initialSelection,
   orderSelection,
@@ -18,7 +19,7 @@ import {
   toggleSelection,
 } from '../../state/results';
 import { useSession } from '../../state/useSession';
-import type { Expansion, Group, Session, Stage } from '../../state/session';
+import type { Expansion, GeneratedImage, Group, Session, Stage } from '../../state/session';
 
 /**
  * The projected screen. Renders whichever stage the session is persisted in
@@ -44,11 +45,19 @@ interface StageViewProps {
   session: Session;
   onGrouped: (groups: Group[]) => Promise<void>;
   onExpanded: (expansions: Record<string, Expansion>) => Promise<void>;
+  onRendered: (images: Record<string, GeneratedImage>) => Promise<void>;
   selectedIds: string[];
   onToggleGroup: (id: string) => void;
 }
 
-function StageView({ session, onGrouped, onExpanded, selectedIds, onToggleGroup }: StageViewProps) {
+function StageView({
+  session,
+  onGrouped,
+  onExpanded,
+  onRendered,
+  selectedIds,
+  onToggleGroup,
+}: StageViewProps) {
   switch (session.stage) {
     case 'draft':
       return <SetupStage session={session} />;
@@ -64,7 +73,7 @@ function StageView({ session, onGrouped, onExpanded, selectedIds, onToggleGroup 
     case 'expanded':
       return <ExpansionStage session={session} onExpanded={onExpanded} />;
     case 'visualizing':
-      return <VisualizeStage />;
+      return <VisualizeStage session={session} onRendered={onRendered} />;
     case 'gallery':
       return <GalleryStage />;
   }
@@ -135,6 +144,27 @@ export default function SessionPage() {
     [session, update],
   );
 
+  /**
+   * F-8.4/F-9.1 — merges a batch of pictures into what is already stored and
+   * moves to `gallery` once every chosen group has one.
+   *
+   * Only ever advances from `visualizing`, so a slow "Generuj ponownie" landing
+   * after the lecturer has moved on cannot drag the projector back a screen.
+   */
+  const onRendered = useCallback(
+    async (arrived: Record<string, GeneratedImage>) => {
+      if (!session) return;
+
+      const images = { ...session.images, ...arrived };
+      const complete = session.stage === 'visualizing' && allImagesReady({ ...session, images });
+
+      await update(complete ? { images, stage: 'gallery' } : { images });
+    },
+    [session, update],
+  );
+
+  // Every hook above this line, unconditionally: the early returns below would
+  // otherwise change the hook order between renders.
   if (loading && !session) {
     return (
       <main className="page page--stage">
@@ -213,6 +243,17 @@ export default function SessionPage() {
     });
   }
 
+  // F-9.1 — the gallery opens only once all three pictures exist.
+  if (session.stage === 'gallery' || (session.stage === 'visualizing' && allImagesReady(session))) {
+    actions.push({
+      key: 'gallery',
+      label: pl.common.showGallery,
+      primary: session.stage !== 'gallery',
+      disabled: session.stage === 'gallery',
+      onSelect: () => void update({ stage: 'gallery' }),
+    });
+  }
+
   if (session.stage !== 'draft') {
     actions.push({
       key: 'reset',
@@ -229,6 +270,7 @@ export default function SessionPage() {
         session={session}
         onGrouped={onGrouped}
         onExpanded={onExpanded}
+        onRendered={onRendered}
         selectedIds={selectedIds}
         onToggleGroup={onToggleGroup}
       />

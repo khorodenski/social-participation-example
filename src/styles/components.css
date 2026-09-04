@@ -815,6 +815,147 @@
   justify-content: flex-end;
 }
 
+/* -------------------------------------------------------- visualize stage */
+
+/* A list of cards, not a centred hero — same opt-out as results and expansion. */
+.page--session > .visualize {
+  align-items: stretch;
+  justify-content: flex-start;
+  text-align: left;
+  overflow-y: auto;
+}
+
+.visualize {
+  width: 100%;
+  max-width: 84rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.visualize__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-6);
+  flex-wrap: wrap;
+}
+
+.visualize__tally {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+
+.visualize__cards {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: var(--sp-4);
+  align-items: start;
+}
+
+/* ------------------------------------------------------------ image card */
+
+.image-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.image-card.is-failed {
+  border-color: var(--danger);
+}
+
+/* The frame holds its shape before the picture arrives, so the row does not
+   jump when one card finishes ahead of the others. 16:9 matches what the image
+   model is asked for. */
+.image-card__frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-inset);
+}
+
+.image-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.image-card__pending {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-6);
+  text-align: center;
+}
+
+/* The same slow breath as the other waiting screens. */
+.image-card__pulse {
+  width: 8rem;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  background-size: 200% 100%;
+  animation: sweep 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .image-card__pulse {
+    animation: none;
+    background: var(--accent);
+    opacity: 0.5;
+  }
+}
+
+.image-card__foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  padding: var(--sp-3) var(--sp-4);
+}
+
+.image-card__label {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+/* Small and quiet: the picture is the thing being looked at (N-2). */
+.image-card__again {
+  font-size: var(--fs-xs);
+  padding: var(--sp-1) var(--sp-3);
+  flex: none;
+}
+
+.image-card__note {
+  font-size: var(--fs-xs);
+  flex-basis: 100%;
+}
+
+/* 720p projection: three 16:9 frames plus their labels need the room. */
+@media (max-height: 800px) {
+  .page--session > .visualize {
+    padding: var(--sp-4) var(--sp-8);
+    gap: var(--sp-3);
+  }
+}
+
 /* ------------------------------------------------------------- settings */
 
 .visually-hidden {
