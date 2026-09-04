@@ -70,12 +70,12 @@ export async function generateSessionImage(
   /**
    * Re-encoded before storing, at full resolution.
    *
-   * Measured: the model returns a 2K JPEG at about 4.4 MB. Netlify
-   * base64-encodes a function's binary payload, so that arrives as roughly
-   * 5.9 MB against a 6 MB platform limit — it would have passed in
-   * `netlify dev` and failed on the real deploy, with the picture missing from
-   * a projector and nothing on screen to say why. Re-encoding keeps every pixel
-   * and drops the file by about an order of magnitude.
+   * Measured: the model returns a 2K JPEG at about 4 MB, every time. That is
+   * inside `ASSET_MAX_BYTES` with only about 15% to spare, so a slightly larger
+   * render would be refused, and the gallery pulls all three at once over
+   * whatever network a lecture hall has. Re-encoding keeps every pixel, so 12 MB
+   * becomes 3 MB for nothing. See `recompress` for what was and was not a real
+   * platform limit.
    */
   const stored = await recompress(toBlob(image.base64, image.mimeType), GENERATED_MAX_EDGE);
 

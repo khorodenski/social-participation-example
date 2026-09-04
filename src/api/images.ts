@@ -117,14 +117,17 @@ export const GENERATED_MAX_EDGE = 2048;
 /**
  * Decode and re-encode at {@link JPEG_QUALITY}, keeping the resolution.
  *
- * The image model returns 2K JPEGs at about 4.4 MB — roughly 1.9 bytes per
- * pixel, which is near-lossless and far more than a projector can show. That
- * size is also a trap: Netlify base64-encodes a function's binary payload, so
- * 4.4 MB arrives as about 5.9 MB against a 6 MB platform limit. It would have
- * worked in `netlify dev` and failed on the real deploy.
+ * The image model returns 2K JPEGs at about 4 MB — roughly 1.9 bytes per pixel,
+ * which is near-lossless and far more than a projector can show.
  *
- * Re-encoding keeps every pixel and drops the file by roughly an order of
- * magnitude.
+ * Two reasons to shrink it, neither of them a platform limit: measured against
+ * the deployed site, a 4.3 MB PUT and GET both work byte-for-byte. First, 4 MB
+ * sits inside `ASSET_MAX_BYTES` with only about 15% to spare, so a slightly
+ * larger render would be refused outright. Second, the gallery pulls all three
+ * at once over whatever network a lecture hall has, and 12 MB against 3 MB is
+ * the difference between a wait and none.
+ *
+ * Re-encoding keeps every pixel, so the saving costs nothing.
  */
 export async function recompress(file: Blob, maxEdge: number): Promise<Blob> {
   const img = await decode(file);
