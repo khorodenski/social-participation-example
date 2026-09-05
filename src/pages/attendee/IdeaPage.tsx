@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Logo from '../../components/Logo';
 import Spinner from '../../components/Spinner';
-import { ApiError, submitIdea } from '../../api/client';
+import { submitIdea } from '../../api/client';
 import { pl } from '../../i18n/pl';
+import { polishMessage } from '../../state/errors';
 import { IDEA_MAX_LENGTH, IDEA_MIN_LENGTH } from '../../state/session';
 import { hasSubmitted, markSubmitted } from '../../state/submitted';
 import { usePublicSession } from '../../state/useSession';
@@ -40,7 +41,7 @@ export default function IdeaPage() {
     } catch (err) {
       // The function already answers in Polish, including the 409 for a vote
       // that closed while this phone had the form open.
-      setProblem(err instanceof ApiError ? err.message : pl.errors.network);
+      setProblem(polishMessage(err, pl.errors.network));
     } finally {
       setSending(false);
     }

@@ -7,6 +7,7 @@ import {
   resetSession,
 } from '../api/client';
 import { pl } from '../i18n/pl';
+import { polishMessage } from './errors';
 import type { PublicSession, Session, SessionPatch } from './session';
 
 /**
@@ -33,8 +34,12 @@ interface UseSession {
   reset: () => Promise<boolean>;
 }
 
+/**
+ * M6-2 — never reads a message off a plain Error. "Failed to fetch" and a zod
+ * blob are both plain Errors, and this screen is projected.
+ */
 function messageOf(err: unknown): string {
-  return err instanceof Error && err.message ? err.message : pl.errors.network;
+  return polishMessage(err, pl.errors.network);
 }
 
 export function useSession(id: string | undefined): UseSession {

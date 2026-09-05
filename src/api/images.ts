@@ -1,5 +1,7 @@
 import { putAsset } from './client';
 import { resourceAssetKey } from '../state/assets';
+import { LocalizedError } from '../state/errors';
+import { pl } from '../i18n/pl';
 
 /**
  * F-2.4 — browser-side downscaling, before anything is uploaded.
@@ -63,7 +65,7 @@ function decode(file: Blob): Promise<HTMLImageElement> {
     };
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new Error('nie udało się odczytać obrazu'));
+      reject(new LocalizedError(pl.resources.decodeFailed));
     };
 
     img.src = url;
@@ -73,7 +75,7 @@ function decode(file: Blob): Promise<HTMLImageElement> {
 function toJpeg(canvas: HTMLCanvasElement): Promise<Blob> {
   return new Promise((resolve, reject) => {
     canvas.toBlob(
-      (blob) => (blob ? resolve(blob) : reject(new Error('nie udało się zakodować obrazu'))),
+      (blob) => (blob ? resolve(blob) : reject(new LocalizedError(pl.resources.encodeFailed))),
       OUTPUT_TYPE,
       JPEG_QUALITY,
     );
@@ -94,7 +96,9 @@ export async function encodeAt(img: HTMLImageElement, maxEdge: number): Promise<
   canvas.height = size.height;
 
   const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('brak kontekstu 2d');
+  // LocalizedError, not Error: the resource editor renders whatever it
+  // catches, and pl.ts owns every string the user can see.
+  if (!ctx) throw new LocalizedError(pl.resources.noCanvas);
 
   // The default is 'low', which on a 4000 px phone photo scaled to 768 px
   // produces visible aliasing on every railing and window frame — exactly the
@@ -170,7 +174,7 @@ export async function uploadResourceImage(
 
   // Both keys are checked before anything is decoded, so a bad resource id
   // fails immediately instead of after two canvas passes.
-  if (!imageKey || !previewKey) throw new Error('nieprawidłowy identyfikator materiału');
+  if (!imageKey || !previewKey) throw new LocalizedError(pl.resources.badResourceId);
 
   const img = await decode(file);
   const reference = await encodeAt(img, REFERENCE_MAX_EDGE);

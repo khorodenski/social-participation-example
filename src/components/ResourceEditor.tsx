@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { assetUrl } from '../api/client';
 import { uploadResourceImage } from '../api/images';
 import { pl } from '../i18n/pl';
+import { polishMessage } from '../state/errors';
 import {
   addResource,
   moveResource,
@@ -177,7 +178,7 @@ export default function ResourceEditor({
       const stored = await uploadResourceImage(sessionId, id, file);
       onChange((current) => addResource(current, newImageResource(stored, id)));
     } catch (err) {
-      setUploadError(err instanceof Error ? err.message : pl.resources.uploadFailed);
+      setUploadError(polishMessage(err, pl.resources.uploadFailed));
     } finally {
       setUploading(false);
     }

@@ -179,6 +179,10 @@ export const pl = {
     uploading: 'Przygotowuję zdjęcie…',
     uploadFailed: 'Nie udało się wgrać zdjęcia.',
     imageMissing: 'Brak podglądu zdjęcia.',
+    noCanvas: 'Ta przeglądarka nie potrafi przeskalować zdjęcia.',
+    badResourceId: 'Nieprawidłowy identyfikator materiału.',
+    decodeFailed: 'Nie udało się odczytać tego pliku jako zdjęcia.',
+    encodeFailed: 'Nie udało się przygotować zdjęcia do wysłania.',
   },
 
   groups: {
@@ -211,6 +215,11 @@ export const pl = {
     assetTooLarge: 'Plik jest za duży.',
     methodNotAllowed: 'Nieobsługiwana metoda.',
     network: 'Błąd połączenia.',
+    // M6-2 — shown when a response carries no Polish message of its own, so
+    // that `statusText` ("Gateway Timeout") never reaches a projected screen.
+    timeout: 'Serwer nie odpowiedział na czas. Spróbuj ponownie.',
+    unavailable: 'Serwer jest chwilowo niedostępny. Spróbuj ponownie.',
+    badResponse: 'Serwer zwrócił nieoczekiwaną odpowiedź.',
   },
 } as const;
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { ApiError, listIdeas } from '../api/client';
+import { listIdeas } from '../api/client';
 import { ideaCountLabel, pl } from '../i18n/pl';
+import { polishMessage } from '../state/errors';
 import { rankGroups, requiredSelectionCount } from '../state/results';
 import { getShowIdeasInGroups } from '../state/settings';
 import type { Group, Idea } from '../state/session';
@@ -165,7 +166,7 @@ export default function ResultsStage({
       const list = await listIdeas(sessionId);
       setIdeas(Object.fromEntries(list.map((idea) => [idea.id, idea])));
     } catch (err) {
-      setIdeasError(err instanceof ApiError ? err.message : pl.results.ideasFailed);
+      setIdeasError(polishMessage(err, pl.results.ideasFailed));
       // Let the next open try again; a hall's network drops one request often
       // enough that a permanent failure would be the wrong answer.
       loadingIdeas.current = false;

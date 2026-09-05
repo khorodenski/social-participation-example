@@ -3,6 +3,7 @@ import { assetUrl } from '../api/client';
 import { ModelError } from '../api/google';
 import { generateSessionImage } from '../api/visualize';
 import { pl } from '../i18n/pl';
+import { polishMessage } from '../state/errors';
 import { selectedGroups } from '../state/expansion';
 import { generatedImageSrc, missingImages } from '../state/visualize';
 import type { GeneratedImage, Group, Session } from '../state/session';
@@ -154,7 +155,7 @@ export default function VisualizeStage({ session, onRendered }: VisualizeStagePr
         }
         const err: unknown = result.reason;
         failed[group.id] = {
-          message: err instanceof Error && err.message ? err.message : pl.visualize.failed,
+          message: polishMessage(err, pl.visualize.failed),
           retryable: err instanceof ModelError ? err.retryable : true,
         };
       });

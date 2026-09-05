@@ -2,6 +2,7 @@ import type { ContentListUnion, GoogleGenAI } from '@google/genai';
 import type { z } from 'zod';
 import { pl } from '../i18n/pl';
 import { asInlineImage } from '../state/assets';
+import { LocalizedError } from '../state/errors';
 import type { Group, Idea, Resource } from '../state/session';
 import {
   EXPANSION_SYSTEM_PROMPT,
@@ -81,8 +82,14 @@ export async function createGoogleClient(apiKey: string): Promise<GoogleGenAI> {
   return new GoogleGenAI({ apiKey });
 }
 
-/** A model failure with Polish copy ready for the UI (N-7). */
-export class ModelError extends Error {
+/**
+ * A model failure with Polish copy ready for the UI (N-7).
+ *
+ * Extends `LocalizedError`, which is what lets a screen render `.message`
+ * without checking — see `state/errors.ts`. Every message here comes from
+ * `pl.*`, including the ones `describeModelError` picks.
+ */
+export class ModelError extends LocalizedError {
   constructor(
     message: string,
     /** False when retrying cannot possibly help (e.g. nothing to group). */

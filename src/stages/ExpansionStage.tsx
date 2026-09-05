@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { expandSessionGroup } from '../api/expansion';
 import { ModelError } from '../api/google';
 import { pl } from '../i18n/pl';
+import { polishMessage } from '../state/errors';
 import { missingExpansions, selectedGroups } from '../state/expansion';
 import type { Expansion, Group, Session } from '../state/session';
 
@@ -163,7 +164,7 @@ export default function ExpansionStage({ session, onExpanded }: ExpansionStagePr
         }
         const err: unknown = result.reason;
         failed[group.id] = {
-          message: err instanceof Error && err.message ? err.message : pl.expansion.failed,
+          message: polishMessage(err, pl.expansion.failed),
           retryable: err instanceof ModelError ? err.retryable : true,
         };
       });

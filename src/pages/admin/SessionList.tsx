@@ -5,6 +5,7 @@ import Logo from '../../components/Logo';
 import Spinner from '../../components/Spinner';
 import { createSession, listSessions } from '../../api/client';
 import { pl } from '../../i18n/pl';
+import { polishMessage } from '../../state/errors';
 import type { SessionSummary } from '../../state/session';
 
 /**
@@ -31,7 +32,7 @@ export default function SessionList() {
         const result = await listSessions();
         if (!cancelled) setSessions(result);
       } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : pl.errors.network);
+        if (!cancelled) setError(polishMessage(err, pl.errors.network));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -56,7 +57,7 @@ export default function SessionList() {
       const session = await createSession({ title: trimmed, intro: intro.trim() });
       void navigate(`/admin/${session.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : pl.errors.network);
+      setError(polishMessage(err, pl.errors.network));
       setCreating(false);
     }
   }

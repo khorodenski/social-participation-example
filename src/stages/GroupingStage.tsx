@@ -3,6 +3,7 @@ import { getIdeaCount } from '../api/client';
 import { groupSessionIdeas } from '../api/grouping';
 import { ModelError } from '../api/google';
 import { pl } from '../i18n/pl';
+import { polishMessage } from '../state/errors';
 import type { Group, Session } from '../state/session';
 
 /**
@@ -59,7 +60,7 @@ export default function GroupingStage({ session, onGrouped }: GroupingStageProps
         const groups = await groupSessionIdeas(session.id);
         await onGrouped(groups);
       } catch (err) {
-        setError(err instanceof Error ? err.message : pl.errors.network);
+        setError(polishMessage(err, pl.errors.network));
         setRetryable(err instanceof ModelError ? err.retryable : true);
       }
     })();

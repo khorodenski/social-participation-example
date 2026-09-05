@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { ModelError, testApiKey, type ImageSize } from '../api/google';
+import { testApiKey, type ImageSize } from '../api/google';
 import { pl } from '../i18n/pl';
+import { polishMessage } from '../state/errors';
 import {
   clearApiKey,
   getApiKey,
@@ -120,7 +121,7 @@ export default function GearSettingsDialog() {
         text: dirty ? `${pl.settings.keyOk} ${pl.settings.unsaved}` : pl.settings.keyOk,
       });
     } catch (err) {
-      const reason = err instanceof ModelError ? err.message : pl.errors.network;
+      const reason = polishMessage(err, pl.errors.network);
       setStatus({ tone: 'error', text: `${pl.settings.keyFailed} ${reason}` });
     } finally {
       setTesting(false);
