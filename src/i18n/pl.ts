@@ -50,6 +50,10 @@ export const pl = {
     imageSize1K: '1K — szybciej (ok. 11 s na obraz)',
     imageSize2K: '2K — ostrzej na projektorze (ok. 20 s na obraz)',
     imageSizeSaved: 'Rozdzielczość zapisana w tej przeglądarce.',
+    showIdeasLabel: 'Pokazuj pomysły w grupach',
+    showIdeasHint:
+      'Okno grupy pokaże pomysły, które do niej trafiły. Domyślnie wyłączone: pomysły są anonimowe, ale to nadal surowe wypowiedzi uczestników, a ekran jest rzutowany.',
+    showIdeasSaved: 'Ustawienie zapisane w tej przeglądarce.',
     privacy:
       'Klucz nie opuszcza tej przeglądarki. Nie trafia na serwer ani do zapisanych danych sesji.',
   },
@@ -91,6 +95,10 @@ export const pl = {
     synthesisTitle: 'Synteza',
     otherHint: 'Ta grupa nie przechodzi do wizualizacji.',
     noGroups: 'Model nie zwrócił żadnej grupy.',
+    ideasHeading: 'Pomysły w tej grupie',
+    ideasLoading: 'Wczytuję pomysły…',
+    ideasFailed: 'Nie udało się wczytać pomysłów.',
+    ideasEmpty: 'Ta grupa nie ma przypisanych pomysłów.',
   },
 
   expansion: {

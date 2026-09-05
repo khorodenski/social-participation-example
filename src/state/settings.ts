@@ -9,6 +9,9 @@
  * - **The generated-image resolution.** Stored the same way so the choice
  *   survives a reload, and because it is a property of the lecturer's setup —
  *   their projector — rather than of any one session.
+ * - **Whether a group's popup lists the ideas inside it.** Off unless the
+ *   lecturer turns it on. See `getShowIdeasInGroups` for why that default is
+ *   not just a preference.
  *
  * Every read is wrapped: private mode and blocked site data both make
  * `localStorage` throw on access, and a settings dialog that crashes the
@@ -18,6 +21,7 @@ import { DEFAULT_IMAGE_SIZE, IMAGE_SIZES, type ImageSize } from '../api/google';
 
 const API_KEY_STORAGE_KEY = 'social-voting.googleApiKey';
 const IMAGE_SIZE_STORAGE_KEY = 'social-voting.imageSize';
+const SHOW_IDEAS_STORAGE_KEY = 'social-voting.showIdeasInGroups';
 
 export function getApiKey(): string | null {
   try {
@@ -72,5 +76,31 @@ export function setImageSize(size: ImageSize): void {
     window.localStorage.setItem(IMAGE_SIZE_STORAGE_KEY, size);
   } catch {
     /* storage unavailable — the pick still holds for this page view */
+  }
+}
+
+/**
+ * Whether a group's popup lists the ideas that went into it.
+ *
+ * **Off unless it is exactly 'true'.** F-6.2 used to say raw ideas are never
+ * shown anywhere; this setting is the lecturer's own decision to override that
+ * for their room, and it is opt-in rather than opt-out because the screen is a
+ * projection and the ideas were typed by the people looking at it. Storage
+ * failing, storage holding junk, and storage being empty all mean off, which is
+ * the direction that keeps the promise.
+ */
+export function getShowIdeasInGroups(): boolean {
+  try {
+    return window.localStorage.getItem(SHOW_IDEAS_STORAGE_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export function setShowIdeasInGroups(show: boolean): void {
+  try {
+    window.localStorage.setItem(SHOW_IDEAS_STORAGE_KEY, show ? 'true' : 'false');
+  } catch {
+    /* storage unavailable — the choice still holds for this page view */
   }
 }

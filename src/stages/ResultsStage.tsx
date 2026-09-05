@@ -1,23 +1,32 @@
 import { useEffect, useRef, useState } from 'react';
+import { ApiError, listIdeas } from '../api/client';
 import { ideaCountLabel, pl } from '../i18n/pl';
 import { rankGroups, requiredSelectionCount } from '../state/results';
-import type { Group } from '../state/session';
+import { getShowIdeasInGroups } from '../state/settings';
+import type { Group, Idea } from '../state/session';
 
 /**
  * F-6.1..F-6.4 — the podium.
  *
  * The top three themes are prominent, the rest is a compact list, and the
  * catch-all "Inne" sits apart at the bottom because it has no theme to
- * visualise. A card carries a label and a count and nothing else: clicking it
- * opens the synthesis, and **raw ideas appear nowhere** (F-6.2). That is the
- * whole anonymity promise made to the room, so nothing here should ever be
- * given an idea to render.
+ * visualise. A card carries a label and a count and nothing else; clicking it
+ * opens the synthesis.
+ *
+ * **Cards never show ideas. The popup shows them only if the lecturer asked.**
+ * F-6.2 originally said raw ideas appear nowhere at all, and that was the
+ * anonymity promise made to the room. It is now the lecturer's own call,
+ * through "Pokazuj pomysły w grupach" behind the gear, and it is **off unless
+ * they turn it on** — this screen is a projection and the ideas were typed by
+ * the people looking at it. The setting is re-read every time the popup opens,
+ * so a change made mid-stage takes effect without a reload.
  *
  * Selection lives in `SessionPage` because "Dalej" is a control-bar action,
  * next to "Grupuj ponownie" and "Resetuj sesję" where the lecturer looks for it.
  */
 
 interface ResultsStageProps {
+  sessionId: string;
   groups: Group[];
   selectedIds: string[];
   onToggle: (id: string) => void;
@@ -74,9 +83,101 @@ function GroupCard({ group, rank, selected, onOpen, onToggle }: GroupCardProps) 
   );
 }
 
-export default function ResultsStage({ groups, selectedIds, onToggle }: ResultsStageProps) {
+interface IdeaListProps {
+  group: Group;
+  /** `null` while the fetch is still out. */
+  ideas: Record<string, Idea> | null;
+  error: string | null;
+}
+
+/**
+ * The ideas that fed one group, shown only when the lecturer switched it on.
+ *
+ * The list scrolls inside the popup rather than growing it: a big group would
+ * otherwise push the close button off a projected screen. An id with no idea
+ * behind it is dropped rather than rendered as a gap — the model writes those
+ * ids, and F-5.3 already treats them as fallible.
+ */
+function IdeaList({ group, ideas, error }: IdeaListProps) {
+  const count = group.ideaIds.length;
+
+  const body = () => {
+    if (error) return <p className="error-text">{error}</p>;
+    if (ideas === null) return <p className="muted">{pl.results.ideasLoading}</p>;
+
+    const found = group.ideaIds
+      .map((id) => ideas[id])
+      .filter((idea): idea is Idea => idea !== undefined);
+
+    if (found.length === 0) return <p className="muted">{pl.results.ideasEmpty}</p>;
+
+    return (
+      <ul className="synthesis__list">
+        {found.map((idea) => (
+          <li key={idea.id} className="synthesis__idea">
+            {idea.text}
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+  return (
+    <section className="synthesis__ideas">
+      <h3 className="synthesis__heading">
+        {pl.results.ideasHeading} · {count} {ideaCountLabel(count)}
+      </h3>
+      {body()}
+    </section>
+  );
+}
+
+export default function ResultsStage({
+  sessionId,
+  groups,
+  selectedIds,
+  onToggle,
+}: ResultsStageProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [shown, setShown] = useState<Group | null>(null);
+
+  const [showIdeas, setShowIdeas] = useState(getShowIdeasInGroups);
+  const [ideas, setIdeas] = useState<Record<string, Idea> | null>(null);
+  const [ideasError, setIdeasError] = useState<string | null>(null);
+  const loadingIdeas = useRef(false);
+
+  /**
+   * Fetched once and kept, so opening a second group is instant in front of a
+   * room. Key-less: the ideas endpoint needs no API key.
+   *
+   * The ref is the only guard, and there is deliberately **no cancelled flag**.
+   * React StrictMode double-runs effects in dev, and a cleanup that cancels the
+   * one call the guard allows leaves the list loading forever in dev while
+   * working in production — the same trap `GroupingStage` documents.
+   */
+  async function loadIdeas() {
+    if (ideas !== null || loadingIdeas.current) return;
+
+    loadingIdeas.current = true;
+    setIdeasError(null);
+
+    try {
+      const list = await listIdeas(sessionId);
+      setIdeas(Object.fromEntries(list.map((idea) => [idea.id, idea])));
+    } catch (err) {
+      setIdeasError(err instanceof ApiError ? err.message : pl.results.ideasFailed);
+      // Let the next open try again; a hall's network drops one request often
+      // enough that a permanent failure would be the wrong answer.
+      loadingIdeas.current = false;
+    }
+  }
+
+  // Warm the list on arrival when the setting is already on, so the first click
+  // does not wait on a request.
+  useEffect(() => {
+    if (getShowIdeasInGroups()) void loadIdeas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Esc closes a native <dialog> without going through our close button, so the
   // shown group is cleared from the `close` event rather than from the handler.
@@ -91,6 +192,13 @@ export default function ResultsStage({ groups, selectedIds, onToggle }: ResultsS
 
   function openSynthesis(group: Group) {
     setShown(group);
+
+    // Re-read rather than trusting the mount: the gear sits in the control bar
+    // right below this screen, so it can be flipped between two clicks.
+    const wanted = getShowIdeasInGroups();
+    setShowIdeas(wanted);
+    if (wanted) void loadIdeas();
+
     dialogRef.current?.showModal();
   }
 
@@ -157,7 +265,20 @@ export default function ResultsStage({ groups, selectedIds, onToggle }: ResultsS
       <dialog ref={dialogRef} className="synthesis" aria-label={pl.results.synthesisTitle}>
         <div className="synthesis__body">
           <h2 className="synthesis__title">{shown?.label}</h2>
-          <p className="synthesis__text">{shown?.synthesis}</p>
+
+          {/* The title and the close button are pinned; everything between them
+              scrolls as one region. Giving the idea list its own scroller looked
+              tidier and broke at 720p: the synthesis alone filled the popup, the
+              list was squeezed to nothing and the close button was pushed off
+              the bottom. */}
+          <div className="synthesis__scroll">
+            <p className="synthesis__text">{shown?.synthesis}</p>
+
+            {showIdeas && shown ? (
+              <IdeaList group={shown} ideas={ideas} error={ideasError} />
+            ) : null}
+          </div>
+
           <div className="synthesis__actions">
             <button type="button" className="btn" onClick={() => dialogRef.current?.close()}>
               {pl.common.close}

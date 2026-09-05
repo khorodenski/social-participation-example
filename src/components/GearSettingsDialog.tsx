@@ -1,7 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { ModelError, testApiKey, type ImageSize } from '../api/google';
 import { pl } from '../i18n/pl';
-import { clearApiKey, getApiKey, getImageSize, setApiKey, setImageSize } from '../state/settings';
+import {
+  clearApiKey,
+  getApiKey,
+  getImageSize,
+  getShowIdeasInGroups,
+  setApiKey,
+  setImageSize,
+  setShowIdeasInGroups,
+} from '../state/settings';
 
 /**
  * F-3.1/F-3.2/F-3.3 — the lecturer's API key, and the resolution their images
@@ -31,6 +39,7 @@ export default function GearSettingsDialog() {
   const [testing, setTesting] = useState(false);
   const [status, setStatus] = useState<Status>(null);
   const [size, setSize] = useState<ImageSize>(getImageSize);
+  const [showIdeas, setShowIdeas] = useState(getShowIdeasInGroups);
 
   // Whether what is typed differs from what is stored (F-3.1).
   const stored = getApiKey() ?? '';
@@ -39,8 +48,9 @@ export default function GearSettingsDialog() {
   function open() {
     setValue(getApiKey() ?? '');
     // Re-read rather than trusting the last render: another tab on the same
-    // laptop may have changed it.
+    // laptop may have changed them.
     setSize(getImageSize());
+    setShowIdeas(getShowIdeasInGroups());
     setRevealed(false);
     setStatus(null);
     ref.current?.showModal();
@@ -85,6 +95,12 @@ export default function GearSettingsDialog() {
     setSize(next);
     setImageSize(next);
     setStatus({ tone: 'ok', text: pl.settings.imageSizeSaved });
+  }
+
+  function chooseShowIdeas(next: boolean) {
+    setShowIdeas(next);
+    setShowIdeasInGroups(next);
+    setStatus({ tone: 'ok', text: pl.settings.showIdeasSaved });
   }
 
   async function test() {
@@ -178,6 +194,21 @@ export default function GearSettingsDialog() {
             </select>
 
             <p className="muted">{pl.settings.imageSizeHint}</p>
+          </div>
+
+          <div className="field">
+            <label className="settings__check" htmlFor="show-ideas">
+              <input
+                id="show-ideas"
+                type="checkbox"
+                checked={showIdeas}
+                onChange={(event) => chooseShowIdeas(event.target.checked)}
+                disabled={testing}
+              />
+              {pl.settings.showIdeasLabel}
+            </label>
+
+            <p className="muted">{pl.settings.showIdeasHint}</p>
           </div>
 
           {status ? (

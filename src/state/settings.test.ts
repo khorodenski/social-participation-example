@@ -4,9 +4,11 @@ import {
   clearApiKey,
   getApiKey,
   getImageSize,
+  getShowIdeasInGroups,
   hasApiKey,
   setApiKey,
   setImageSize,
+  setShowIdeasInGroups,
 } from './settings';
 
 /**
@@ -122,5 +124,53 @@ describe('the image resolution', () => {
 
     expect(getImageSize()).toBe(DEFAULT_IMAGE_SIZE);
     expect(() => setImageSize('1K')).not.toThrow();
+  });
+});
+
+/**
+ * The amended F-6.2. Raw ideas are a promise made to a room, so every way of
+ * being unsure has to land on "off".
+ */
+describe('showing ideas inside groups', () => {
+  it('is off when nothing is stored', () => {
+    expect(getShowIdeasInGroups()).toBe(false);
+  });
+
+  it('round-trips both ways', () => {
+    setShowIdeasInGroups(true);
+    expect(getShowIdeasInGroups()).toBe(true);
+
+    setShowIdeasInGroups(false);
+    expect(getShowIdeasInGroups()).toBe(false);
+  });
+
+  it('is off for anything that is not exactly "true"', () => {
+    for (const junk of ['1', 'yes', 'True', 'TRUE', '', 'tak']) {
+      storage.setItem('social-voting.showIdeasInGroups', junk);
+
+      expect(getShowIdeasInGroups()).toBe(false);
+    }
+  });
+
+  it('is off when storage throws, which is the direction that keeps the promise', () => {
+    vi.stubGlobal('window', {
+      get localStorage(): never {
+        throw new Error('storage disabled');
+      },
+    });
+
+    expect(getShowIdeasInGroups()).toBe(false);
+    expect(() => setShowIdeasInGroups(true)).not.toThrow();
+  });
+
+  it('is independent of the key and the resolution', () => {
+    setShowIdeasInGroups(true);
+    setApiKey('AIza-not-a-real-key');
+    setImageSize('1K');
+
+    clearApiKey();
+
+    expect(getShowIdeasInGroups()).toBe(true);
+    expect(getImageSize()).toBe('1K');
   });
 });

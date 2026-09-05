@@ -991,13 +991,17 @@
 
 /* -------------------------------------------------------- synthesis modal */
 
+/* Wide and tall enough to read a group's ideas from a few metres back. The
+   height is a maximum, so a popup with the switch off stays short. */
 .synthesis {
   background: var(--bg-elevated);
   color: var(--text);
   border: 0;
   border-radius: var(--radius-lg);
   padding: 0;
-  width: min(52rem, calc(100vw - 2rem));
+  width: 75vw;
+  max-width: calc(100vw - 2rem);
+  max-height: 80vh;
   /* The reset zeroes every margin, which also removes the UA stylesheet's
      `margin: auto` and drops a modal dialog into the top-left corner. */
   margin: auto;
@@ -1007,11 +1011,29 @@
   background: rgb(0 0 0 / 0.6);
 }
 
+/* Repeats the dialog's own cap so the scroll region has a bounded parent, and
+   clips rather than letting a child escape: without the cap the popup grows
+   until the close button is off the bottom of a projected screen. */
 .synthesis__body {
   display: flex;
   flex-direction: column;
   gap: var(--sp-4);
   padding: var(--sp-8);
+  max-height: 80vh;
+  overflow: hidden;
+}
+
+/* Everything between the pinned title and the pinned close button. One scroll
+   region rather than one per section: at 720p a long synthesis on its own can
+   fill the popup, and two competing scrollers left the idea list squeezed to
+   zero height with the close button pushed out. */
+.synthesis__scroll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .synthesis__title {
@@ -1020,10 +1042,47 @@
   letter-spacing: 0;
 }
 
+/* Capped rather than filling the 75vw: a two-sentence synthesis across
+   1440 px of projector is a bad line length. */
 .synthesis__text {
   font-size: var(--fs-lg);
   line-height: 1.55;
   color: var(--text);
+  max-width: 70ch;
+}
+
+/* F-6.2, as amended — the ideas behind a group, shown only when the lecturer
+   turned "Pokazuj pomysły w grupach" on. It does not scroll itself;
+   `.synthesis__scroll` above it does. */
+.synthesis__ideas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  border-top: 1px solid var(--border);
+  padding-top: var(--sp-4);
+}
+
+.synthesis__heading {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.synthesis__list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.synthesis__idea {
+  background: var(--bg-inset);
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-md);
+  line-height: 1.5;
 }
 
 .synthesis__actions {
@@ -1444,4 +1503,14 @@
 /* The thank-you screen is centred, so the mark centres with it. */
 .attendee--done .attendee__logo {
   align-self: center;
+}
+
+/* The gear's one checkbox. Same shape as the resource editor's. */
+.settings__check {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--text);
+  cursor: pointer;
 }

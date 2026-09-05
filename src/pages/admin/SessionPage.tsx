@@ -87,7 +87,12 @@ function StageView({
       return <GroupingStage session={session} onGrouped={onGrouped} />;
     case 'results':
       return (
-        <ResultsStage groups={session.groups} selectedIds={selectedIds} onToggle={onToggleGroup} />
+        <ResultsStage
+          sessionId={session.id}
+          groups={session.groups}
+          selectedIds={selectedIds}
+          onToggle={onToggleGroup}
+        />
       );
     case 'expanding':
     case 'expanded':
