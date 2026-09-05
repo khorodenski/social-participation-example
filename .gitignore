@@ -18,5 +18,9 @@ coverage/
 .idea/
 *.swp
 
+# Claude Code local config: launch.json for the dev server, settings and
+# session state. Local to this machine, like docs/.
+.claude/
+
 # Netlify CLI artifact (edge functions bootstrap)
 deno.lock
