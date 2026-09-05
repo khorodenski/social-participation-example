@@ -5,7 +5,12 @@
  */
 export const pl = {
   app: {
-    name: 'Social Voting',
+    /**
+     * The lecture this app was built for. Kept in step with the `<title>` in
+     * `index.html`, which is a static copy on purpose: it shows before any JS
+     * runs, which matters on the attendee's phone.
+     */
+    name: 'AI w partycypacji społecznej',
     loading: 'Ładowanie…',
     error: 'Coś poszło nie tak.',
     back: 'Wróć',
