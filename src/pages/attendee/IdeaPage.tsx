@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import Logo from '../../components/Logo';
 import Spinner from '../../components/Spinner';
 import { ApiError, submitIdea } from '../../api/client';
 import { pl } from '../../i18n/pl';
@@ -56,6 +57,7 @@ export default function IdeaPage() {
   if (!session) {
     return (
       <main className="page page--narrow attendee">
+        <Logo className="page-logo attendee__logo" />
         <h1 className="stage-title">{error ?? pl.errors.notFound}</h1>
       </main>
     );
@@ -64,6 +66,7 @@ export default function IdeaPage() {
   if (done) {
     return (
       <main className="page page--narrow attendee attendee--done">
+        <Logo className="page-logo attendee__logo" />
         <h1 className="stage-title">{pl.attendee.thankYou}</h1>
         <p className="stage-subtitle">{pl.attendee.thankYouHint}</p>
         <p className="muted">{session.title}</p>
@@ -76,6 +79,7 @@ export default function IdeaPage() {
 
     return (
       <main className="page page--narrow attendee">
+        <Logo className="page-logo attendee__logo" />
         <h1 className="stage-title">{session.title}</h1>
         <p className="stage-subtitle">{message}</p>
       </main>
@@ -84,6 +88,9 @@ export default function IdeaPage() {
 
   return (
     <main className="page page--narrow attendee">
+      {/* The one screen an attendee holds, so the mark goes at the top of it. */}
+      <Logo className="page-logo attendee__logo" />
+
       <header className="attendee__head">
         <h1 className="attendee__title">{session.title}</h1>
         {session.intro ? <p className="muted">{session.intro}</p> : null}

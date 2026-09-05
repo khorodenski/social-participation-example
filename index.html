@@ -3,7 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="dark" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!--
+      Lato, the brand face. Only 300/400/700 are loaded: Light is used for the
+      display sizes, Regular for prose, Bold for headings. Google serves the
+      latin-ext subset by unicode-range, which is what carries the Polish
+      diacritics. `display=swap` keeps the attendee form usable on a bad phone
+      connection before the font lands.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+
     <title>Social Voting</title>
   </head>
   <body>

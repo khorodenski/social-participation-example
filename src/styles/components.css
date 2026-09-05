@@ -21,10 +21,13 @@
   padding: var(--sp-6);
 }
 
+/* The client's own heading style: Light, uppercase, widely tracked. Light is
+   safe here only because this never renders below --fs-xl. */
 .stage-title {
   font-size: var(--fs-2xl);
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: var(--fw-display);
+  letter-spacing: var(--tracking-display);
+  text-transform: uppercase;
 }
 
 .stage-subtitle {
@@ -37,9 +40,10 @@
   font-size: var(--fs-sm);
 }
 
+/* Flat: a white block on the grey ground, no border and no shadow. */
 .card {
   background: var(--bg-elevated);
-  border: 1px solid var(--border);
+  border: 0;
   border-radius: var(--radius-lg);
   padding: var(--sp-6);
 }
@@ -52,7 +56,7 @@
 }
 
 .btn {
-  background: var(--bg-inset);
+  background: var(--bg-elevated);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   padding: var(--sp-2) var(--sp-4);
@@ -64,14 +68,14 @@
 }
 
 .btn:hover {
-  background: var(--border);
+  background: var(--bg-inset);
 }
 
 .btn--primary {
   background: var(--accent);
   border-color: var(--accent);
   color: var(--accent-contrast);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
 }
 
 .btn--primary:hover {
@@ -154,6 +158,19 @@
   gap: var(--sp-4);
 }
 
+.control-bar__logo {
+  height: 1.5rem;
+  width: auto;
+  flex: none;
+}
+
+.control-bar__rule {
+  width: 1px;
+  align-self: stretch;
+  background: var(--border);
+  flex: none;
+}
+
 .control-bar__stage {
   font-size: var(--fs-xs);
   letter-spacing: 0.08em;
@@ -204,6 +221,9 @@
    hall, so the title drops a step below the projected --fs-2xl. */
 .setup__title {
   font-size: var(--fs-xl);
+  font-weight: var(--fw-display);
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .setup__actions {
@@ -225,7 +245,7 @@
 
 .setup__section {
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
 }
 
 /* --------------------------------------------------------- resource editor */
@@ -246,7 +266,7 @@
 
 .resources__title {
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
 }
 
 .resources__list {
@@ -279,8 +299,10 @@
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: var(--sp-4);
-  background: var(--bg-inset);
-  border: 1px solid var(--border);
+  /* Grey, not cream: the fields inside are cream, and cream on cream loses
+     their edges on the one screen where the lecturer is typing. */
+  background: var(--bg);
+  border: 0;
   border-radius: var(--radius);
   padding: var(--sp-4);
 }
@@ -387,8 +409,9 @@
   gap: var(--sp-3);
 }
 
-/* qrcode.react draws dark-on-transparent; the quiet zone has to be light or
-   phone cameras fail against the dark stage background. */
+/* qrcode.react draws dark-on-transparent; the quiet zone has to be white or
+   phone cameras fail against the grey stage ground. This is a function, not a
+   style — do not brand it. */
 .voting__qr > svg {
   background: #fff;
   border-radius: var(--radius);
@@ -413,7 +436,7 @@
 
 .voting__count-number {
   font-size: var(--fs-3xl);
-  font-weight: 700;
+  font-weight: var(--fw-display);
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
@@ -454,14 +477,14 @@
 
 .attendee__title {
   font-size: var(--fs-xl);
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: var(--fw-display);
+  letter-spacing: 0;
 }
 
 .attendee .field > label {
   font-size: var(--fs-md);
   color: var(--text);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
 }
 
 .attendee .textarea {
@@ -489,7 +512,7 @@
 
 .session-form__heading {
   font-size: var(--fs-lg);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
 }
 
 .session-list {
@@ -507,7 +530,7 @@
   gap: var(--sp-4);
   padding: var(--sp-4);
   background: var(--bg-elevated);
-  border: 1px solid var(--border);
+  border: 0;
   border-radius: var(--radius);
 }
 
@@ -520,7 +543,7 @@
 
 .session-list__title {
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
 }
 
 .session-list a.btn {
@@ -556,7 +579,6 @@
 .grouping__pulse {
   width: 12rem;
   height: 4px;
-  border-radius: 999px;
   background: linear-gradient(90deg, transparent, var(--accent), transparent);
   background-size: 200% 100%;
   animation: sweep 2.4s ease-in-out infinite;
@@ -630,13 +652,15 @@
   gap: var(--sp-3);
   padding: var(--sp-6);
   background: var(--bg-elevated);
-  border: 1px solid var(--border);
+  /* Transparent rather than absent: the card reads as flat, but the done and
+     failed states still have something to colour without shifting the layout. */
+  border: 1px solid transparent;
   border-radius: var(--radius-lg);
   min-width: 0;
 }
 
 .prompt-card.is-done {
-  border-color: var(--border-strong);
+  border-color: var(--border);
 }
 
 .prompt-card.is-failed {
@@ -645,7 +669,7 @@
 
 .prompt-card__label {
   font-size: var(--fs-lg);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
   letter-spacing: -0.01em;
   line-height: 1.2;
 }
@@ -668,7 +692,7 @@
 
 .prompt-card__heading {
   font-size: var(--fs-xs);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-dim);
@@ -699,7 +723,6 @@
 .prompt-card__pulse {
   width: 100%;
   height: 4px;
-  border-radius: 999px;
   background: linear-gradient(90deg, transparent, var(--accent), transparent);
   background-size: 200% 100%;
   animation: sweep 2.4s ease-in-out infinite;
@@ -798,7 +821,7 @@
 .group-card {
   display: flex;
   background: var(--bg-elevated);
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
   border-radius: var(--radius);
   overflow: hidden;
   transition:
@@ -806,13 +829,16 @@
     background 120ms ease;
 }
 
+/* Lilac is the brand's only light colour, so it is the fill for a picked
+   group. It never carries text — at 1.5:1 on white it could not. */
 .group-card.is-selected {
   border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 10%, var(--bg-elevated));
+  background: var(--accent-soft);
 }
 
 .group-card--muted {
   background: none;
+  border-color: var(--border-strong);
   border-style: dashed;
 }
 
@@ -855,7 +881,9 @@
 .group-card__rank {
   font-size: var(--fs-sm);
   font-weight: 700;
-  color: var(--text-dim);
+  /* Slate, not dim grey: this also has to be legible on the lilac fill a
+     picked group carries. */
+  color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -863,7 +891,7 @@
   flex: 1;
   min-width: 0;
   font-size: var(--fs-lg);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
   line-height: 1.2;
 }
 
@@ -881,7 +909,7 @@
 
 .group-card__number {
   font-size: var(--fs-xl);
-  font-weight: 700;
+  font-weight: var(--fw-display);
   font-variant-numeric: tabular-nums;
   color: var(--accent);
   line-height: 1;
@@ -928,7 +956,7 @@
 
 .group-card__pick[aria-pressed='true'] {
   color: var(--accent);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
 }
 
 .group-card__pick[aria-pressed='true']::before {
@@ -966,7 +994,7 @@
 .synthesis {
   background: var(--bg-elevated);
   color: var(--text);
-  border: 1px solid var(--border-strong);
+  border: 0;
   border-radius: var(--radius-lg);
   padding: 0;
   width: min(52rem, calc(100vw - 2rem));
@@ -988,8 +1016,8 @@
 
 .synthesis__title {
   font-size: var(--fs-xl);
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-weight: var(--fw-display);
+  letter-spacing: 0;
 }
 
 .synthesis__text {
@@ -1053,7 +1081,7 @@
   flex-direction: column;
   min-width: 0;
   background: var(--bg-elevated);
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
@@ -1094,7 +1122,6 @@
 .image-card__pulse {
   width: 8rem;
   height: 4px;
-  border-radius: 999px;
   background: linear-gradient(90deg, transparent, var(--accent), transparent);
   background-size: 200% 100%;
   animation: sweep 2.4s ease-in-out infinite;
@@ -1119,7 +1146,7 @@
 
 .image-card__label {
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
   line-height: 1.2;
   min-width: 0;
 }
@@ -1172,7 +1199,7 @@
   width: 100%;
   padding: 0;
   background: none;
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
   border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
@@ -1196,7 +1223,7 @@
   display: block;
   padding: var(--sp-3) var(--sp-4);
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
   text-align: center;
   background: var(--bg-elevated);
 }
@@ -1239,11 +1266,10 @@
   left: 50%;
   transform: translateX(-50%);
   padding: var(--sp-2) var(--sp-6);
-  border-radius: 999px;
   background: rgb(0 0 0 / 0.6);
   color: #fff;
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
   white-space: nowrap;
   max-width: calc(100vw - 12rem);
   overflow: hidden;
@@ -1258,7 +1284,6 @@
   justify-content: center;
   background: rgb(0 0 0 / 0.45);
   border: 0;
-  border-radius: 999px;
   color: #fff;
   cursor: pointer;
   line-height: 1;
@@ -1343,7 +1368,7 @@
 .settings {
   background: var(--bg-elevated);
   color: var(--text);
-  border: 1px solid var(--border-strong);
+  border: 0;
   border-radius: var(--radius-lg);
   padding: 0;
   width: min(34rem, calc(100vw - 2rem));
@@ -1365,7 +1390,7 @@
 
 .settings__title {
   font-size: var(--fs-lg);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
 }
 
 .settings__key {
@@ -1398,4 +1423,25 @@
 
 .settings__close {
   margin-left: auto;
+}
+
+/* ------------------------------------------------------------------- logo */
+
+/* The two pages with no control bar carry the mark in their own header. */
+/* The pages are flex columns, so without this the img is stretched to the
+   column width and the mark is squashed inside it. */
+.page-logo {
+  align-self: flex-start;
+  height: 1.75rem;
+  width: auto;
+}
+
+.attendee__logo {
+  height: 1.5rem;
+  margin-bottom: var(--sp-4);
+}
+
+/* The thank-you screen is centred, so the mark centres with it. */
+.attendee--done .attendee__logo {
+  align-self: center;
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import GearSettingsDialog from '../../components/GearSettingsDialog';
+import Logo from '../../components/Logo';
 import Spinner from '../../components/Spinner';
 import { createSession, listSessions } from '../../api/client';
 import { pl } from '../../i18n/pl';
@@ -62,6 +63,9 @@ export default function SessionList() {
 
   return (
     <main className="page page--narrow">
+      {/* This page has no control bar, so it carries the mark itself. */}
+      <Logo className="page-logo" />
+
       <header className="list-head">
         <h1 className="stage-title">{pl.admin.listTitle}</h1>
         {/* Reachable before any session exists, so a fresh laptop is not a
