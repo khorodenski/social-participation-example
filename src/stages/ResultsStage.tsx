@@ -240,25 +240,32 @@ export default function ResultsStage({
         ))}
       </ol>
 
-      {rest.length > 0 ? (
-        <ul className="results__rest">
-          {rest.map((group) => (
-            <GroupCard
-              key={group.id}
-              group={group}
-              selected={selectedIds.includes(group.id)}
-              onOpen={() => openSynthesis(group)}
-              onToggle={() => onToggle(group.id)}
-            />
-          ))}
-        </ul>
-      ) : null}
+      {/* M6-1 — the heading and the podium are pinned; only the compact list
+          scrolls. At 1280x720 the stage was 101 px over and scrolled as a whole,
+          which on a projector means the lecturer scrolling mid-lecture. Shrinking
+          type would have bought exactly this run's eight groups and nothing more:
+          a session that produces twelve would overflow again. */}
+      <div className="results__scroll">
+        {rest.length > 0 ? (
+          <ul className="results__rest">
+            {rest.map((group) => (
+              <GroupCard
+                key={group.id}
+                group={group}
+                selected={selectedIds.includes(group.id)}
+                onOpen={() => openSynthesis(group)}
+                onToggle={() => onToggle(group.id)}
+              />
+            ))}
+          </ul>
+        ) : null}
 
-      {other ? (
-        <ul className="results__rest">
-          <GroupCard group={other} selected={false} onOpen={() => openSynthesis(other)} />
-        </ul>
-      ) : null}
+        {other ? (
+          <ul className="results__rest">
+            <GroupCard group={other} selected={false} onOpen={() => openSynthesis(other)} />
+          </ul>
+        ) : null}
+      </div>
 
       {/* The reset zeroes every margin, which also strips the UA stylesheet's
           `margin: auto` and drops a modal into the top-left corner. */}

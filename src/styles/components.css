@@ -604,20 +604,32 @@
 /* --------------------------------------------------------- expansion stage */
 
 /* A list of cards, not a centred hero — same opt-out as the results screen. */
+/* M6-1 — same treatment as the results stage. At 1280x720 this one was 250 px
+   over, the worst of the five, because three ~110-word English prompts do not
+   fit a 720p screen at any readable size. The heading stays pinned, the cards
+   fill what is left, and each prompt scrolls inside its own card. */
 .page--session > .expansion {
   align-items: stretch;
   justify-content: flex-start;
   text-align: left;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .expansion {
   width: 100%;
-  max-width: 76rem;
+  /* M6-1 — 76rem left a third of a 1920 projector as empty margin and squeezed
+     the prompts into 30-character lines. */
+  max-width: 104rem;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: var(--sp-4);
+  height: 100%;
+  min-height: 0;
+}
+
+.expansion__head {
+  flex: none;
 }
 
 .expansion__head {
@@ -642,6 +654,8 @@
   grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
   gap: var(--sp-4);
   align-items: stretch;
+  flex: 1;
+  min-height: 0;
 }
 
 /* ---------------------------------------------------------- prompt card */
@@ -657,6 +671,7 @@
   border: 1px solid transparent;
   border-radius: var(--radius-lg);
   min-width: 0;
+  min-height: 0;
 }
 
 .prompt-card.is-done {
@@ -674,8 +689,9 @@
   line-height: 1.2;
 }
 
+/* The Polish the room actually reads, so it gets the bigger of the two. */
 .prompt-card__synthesis {
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   color: var(--text-muted);
   line-height: 1.5;
 }
@@ -688,6 +704,9 @@
   margin-top: auto;
   padding-top: var(--sp-3);
   border-top: 1px solid var(--border);
+  /* Takes the height left in the card so the prompt inside it can scroll. */
+  flex: 1;
+  min-height: 0;
 }
 
 .prompt-card__heading {
@@ -699,13 +718,20 @@
 }
 
 /* The prompt is long and English, and it is read on a projector rather than
-   scanned. Mono keeps it visibly a machine instruction, not prose. */
+   scanned. Mono keeps it visibly a machine instruction, not prose.
+   `--fs-md` at 1080p and `--fs-sm` at 720p: three of these cannot be fully
+   readable from the back of a hall at any size, so it is sized to be legible
+   as evidence while the Polish label and synthesis above it carry the room. */
 .prompt-card__prompt {
   font-family: var(--font-mono);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   line-height: 1.55;
   color: var(--text);
   overflow-wrap: anywhere;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 /* A re-run that failed, on a card that still holds a good prompt. Quiet: the
@@ -746,6 +772,15 @@
     padding: var(--sp-4);
     gap: var(--sp-2);
   }
+
+  .prompt-card__label {
+    font-size: var(--fs-md);
+  }
+
+  .prompt-card__synthesis,
+  .prompt-card__prompt {
+    font-size: var(--fs-sm);
+  }
 }
 
 /* ----------------------------------------------------------- results stage */
@@ -754,20 +789,39 @@
    above. Results is not a hero but a list:
    it fills the width, starts at the top, and scrolls when there are more
    groups than fit on the projector. */
+/* M6-1 — the stage itself no longer scrolls. The heading and the podium are
+   pinned and the compact list scrolls inside them, so any number of groups
+   fits and the lecturer never has to scroll a projected screen. */
 .page--session > .results {
   align-items: stretch;
   justify-content: flex-start;
   text-align: left;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .results {
   width: 100%;
-  max-width: 68rem;
+  max-width: 88rem;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: var(--sp-6);
+  height: 100%;
+  min-height: 0;
+}
+
+.results__head,
+.results__podium {
+  flex: none;
+}
+
+.results__scroll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .results__head {
@@ -975,7 +1029,9 @@
 }
 
 /* 720p projection: the podium has to leave room for the list under it, or the
-   compact groups and the catch-all fall off the bottom of the screen. */
+   compact groups and the catch-all fall off the bottom of the screen.
+   The list scrolls now, so this is about how much of the screen the podium is
+   allowed to take, not about making things fit at all. */
 @media (max-height: 800px) {
   .page--session > .results {
     padding: var(--sp-4) var(--sp-8);
@@ -983,9 +1039,43 @@
   }
 
   .group-card--podium .group-card__body {
-    min-height: 8rem;
+    min-height: 7rem;
     gap: var(--sp-3);
     padding: var(--sp-4);
+  }
+
+  .group-card--podium .group-card__label {
+    font-size: var(--fs-lg);
+  }
+
+  .group-card--podium .group-card__number {
+    font-size: var(--fs-xl);
+  }
+
+  /* 14 px is all that stood between a typical eight-group run and needing no
+     scroll at all. The scroll stays for the sessions that produce more. */
+  .results__scroll {
+    gap: var(--sp-2);
+  }
+
+  .results__rest {
+    gap: var(--sp-1);
+  }
+
+  /* The bar is chrome, not content: on a 720p screen its 58 px was 8% of the
+     stage. Smaller here gives that back to the podium and the cards. */
+  .control-bar {
+    padding: var(--sp-1) var(--sp-4);
+    gap: var(--sp-3);
+  }
+
+  .control-bar .btn {
+    font-size: var(--fs-xs);
+    padding: var(--sp-1) var(--sp-3);
+  }
+
+  .control-bar__logo {
+    height: 1.125rem;
   }
 }
 
@@ -1102,7 +1192,7 @@
 
 .visualize {
   width: 100%;
-  max-width: 84rem;
+  max-width: 104rem;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
