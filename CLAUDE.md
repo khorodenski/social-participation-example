@@ -44,6 +44,15 @@ Vite + React 18 + TypeScript (strict) + `react-router-dom` v6. `@netlify/functio
 - One blob per idea (`sessions/<id>/ideas/<ideaId>.json`) so concurrent attendee writes never race.
 - Every model response is zod-validated before it is persisted; invalid responses surface as a retryable error.
 - **Develop against `npx netlify-cli@23 dev --live`, not against deploys.** It tunnels the local `netlify dev` to a public `*.netlify.live` URL so phones can reach it, and costs no credits. The QR follows `window.location.origin`, so open the admin screen on the tunnel URL and it just works. It does not exercise the production build, real Blobs or deploy configuration, so the rehearsal still needs a real deploy.
-- **A production deploy costs a flat 15 credits.** The free tier gives 300 a month, so the whole project has about 20 deploys in it, and roughly 6 were left as of the M3-2 deploy. Build speed does not affect this: the charge is per deploy, not per minute. The only lever is deploying less often, which is what the branch workflow below is for. Check the remaining balance before proposing a deploy.
-- **Netlify credits are finite and the project must fit the free tier.** Work happens on `dev`; `main` is the production branch and mirrors what is deployed. Branch deploys and deploy previews are both off in the Netlify dashboard, so pushing `dev` costs nothing and keeps the work off the laptop. A deploy is a deliberate act: `git checkout main && git merge dev && git push`. `netlify.toml`'s `ignore` command also skips builds for test-only, script-only and docs-only commits, and `[skip netlify]` in a commit message skips one on demand. If credits still run short, **Build settings → Stopped builds** in the dashboard turns automatic builds off entirely; deploys then go through the CLI.
+- **Automatic builds are OFF — the site is on "Stopped builds" (since 2026-09-05).** **Pushing `main` no longer deploys anything.** Deploys are built on this laptop and uploaded through the CLI:
+
+  ```
+  npm run build
+  npx netlify-cli@23 deploy --prod
+  ```
+
+  The CLI reads `netlify.toml` for `publish` and `functions`, so nothing else is needed. `netlify.toml`'s `ignore` command is now dead weight — it only ever applied to Netlify-run builds.
+- **The CLI needs a one-time `login` and `link` on this machine**, and as of 2026-09-05 neither had been done. See section 5 of `docs/05-handoff.md`.
+- **Whether a CLI deploy still costs the flat 15 credits is unverified** — that is the whole reason for the switch. **Record the credit balance before and after the next deploy** and write the answer into the handoff. A Netlify-run build definitely cost 15; roughly 75 credits remained after the 2026-09-05 deploy.
+- **Work happens on `dev`; `main` mirrors what is meant to be live.** Merging `dev` into `main` is now bookkeeping, not a deploy — do it so the branch still records what shipped, then run the CLI deploy. Branch deploys and deploy previews are both off, so pushing costs nothing either way.
 - Netlify shows a "Powered by Netlify" badge in the bottom-right corner by default. It is **turned off for this project in the Netlify dashboard**, so that corner is usable. If it ever reappears there, it will sit over the control bar's buttons and, later, over the gallery's third image.
