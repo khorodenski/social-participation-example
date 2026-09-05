@@ -4,7 +4,7 @@ import { loadResourceImages } from './expansion';
 import { GENERATED_MAX_EDGE, OUTPUT_TYPE, recompress } from './images';
 import { pl } from '../i18n/pl';
 import { generatedImageKey } from '../state/assets';
-import { getApiKey } from '../state/settings';
+import { getApiKey, getImageSize } from '../state/settings';
 import type { GeneratedImage, Session } from '../state/session';
 
 /**
@@ -65,7 +65,13 @@ export async function generateSessionImage(
   if (!prompt) throw new ModelError(pl.visualize.noPrompt, false);
 
   const references = await loadReferenceImages(session);
-  const image = await generateImage(apiKey, prompt, references, options);
+
+  // The lecturer's stored resolution, unless a caller names one — the spike
+  // passes both sizes explicitly, and it should not have to touch storage.
+  const image = await generateImage(apiKey, prompt, references, {
+    ...options,
+    imageSize: options.imageSize ?? getImageSize(),
+  });
 
   /**
    * Re-encoded before storing, at full resolution.

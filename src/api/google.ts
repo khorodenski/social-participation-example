@@ -44,15 +44,24 @@ export const TEXT_MODEL = 'gemma-4-26b-a4b-it';
 export const IMAGE_MODEL = 'gemini-3.1-flash-image';
 
 /**
- * The model's own default is 1K. 2K is chosen because F-9.2 puts one image
- * fullscreen on a 1080p projector, where 1K is visibly soft, while three
- * side by side in the gallery would be fine either way.
+ * The two sizes the lecturer chooses between, in the gear dialog.
  *
- * **Still unsettled with the lecturer.** `npm run spike:image` reports the
- * time and the file size for both, so that conversation can happen with
- * numbers rather than opinions.
+ * Measured by `npm run spike:image`: 1K renders in 10.8 s at about 1.2 MB, 2K
+ * in 19.5 s at about 4 MB. 2K is the default because F-9.2 puts one image
+ * fullscreen on a 1080p projector, where 1K is visibly soft; three side by side
+ * in the gallery would be fine either way. 1K is here because it is nine
+ * seconds a group faster, and the three run in parallel, so it takes roughly
+ * nine seconds off the whole wait rather than twenty-seven.
+ *
+ * The choice is stored in this browser beside the API key — see
+ * `state/settings.ts`. Anything else found in storage falls back to the
+ * default, because this string goes straight into the model's `imageConfig`.
  */
-export const IMAGE_SIZE = '2K';
+export const IMAGE_SIZES = ['1K', '2K'] as const;
+
+export type ImageSize = (typeof IMAGE_SIZES)[number];
+
+export const DEFAULT_IMAGE_SIZE: ImageSize = '2K';
 
 /** Matches the projector and the three-up gallery (F-9.1). */
 export const IMAGE_ASPECT_RATIO = '16:9';
@@ -386,7 +395,7 @@ export async function generateImage(
         contents: [{ role: 'user', parts: [...references, { text: prompt }] }],
         config: {
           imageConfig: {
-            imageSize: options.imageSize ?? IMAGE_SIZE,
+            imageSize: options.imageSize ?? DEFAULT_IMAGE_SIZE,
             aspectRatio: options.aspectRatio ?? IMAGE_ASPECT_RATIO,
           },
         },

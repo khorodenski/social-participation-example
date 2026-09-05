@@ -1,11 +1,23 @@
 /**
- * The lecturer's Google API key (F-3.1/F-3.2).
+ * Everything the lecturer sets on their own machine, in this browser only.
  *
- * It lives ONLY in this browser's localStorage. It is never sent to a
- * Netlify Function, never written to Blobs and never logged. This module is
- * the only place in the app that touches the key in storage.
+ * Two things live here, both in `localStorage` and both behind the gear:
+ *
+ * - **The Google API key (F-3.1/F-3.2).** It is never sent to a Netlify
+ *   Function, never written to Blobs and never logged. This module is the only
+ *   place in the app that touches the key in storage.
+ * - **The generated-image resolution.** Stored the same way so the choice
+ *   survives a reload, and because it is a property of the lecturer's setup —
+ *   their projector — rather than of any one session.
+ *
+ * Every read is wrapped: private mode and blocked site data both make
+ * `localStorage` throw on access, and a settings dialog that crashes the
+ * projected screen mid-lecture is worse than one that forgets a preference.
  */
+import { DEFAULT_IMAGE_SIZE, IMAGE_SIZES, type ImageSize } from '../api/google';
+
 const API_KEY_STORAGE_KEY = 'social-voting.googleApiKey';
+const IMAGE_SIZE_STORAGE_KEY = 'social-voting.imageSize';
 
 export function getApiKey(): string | null {
   try {
@@ -34,4 +46,31 @@ export function clearApiKey(): void {
 export function hasApiKey(): boolean {
   const key = getApiKey();
   return key !== null && key.trim().length > 0;
+}
+
+/**
+ * Storage is a string the user can edit, and this value goes straight into the
+ * model's `imageConfig`. Anything unrecognised is treated as unset.
+ */
+function isImageSize(value: unknown): value is ImageSize {
+  return IMAGE_SIZES.includes(value as ImageSize);
+}
+
+export function getImageSize(): ImageSize {
+  try {
+    const stored = window.localStorage.getItem(IMAGE_SIZE_STORAGE_KEY);
+    return isImageSize(stored) ? stored : DEFAULT_IMAGE_SIZE;
+  } catch {
+    return DEFAULT_IMAGE_SIZE;
+  }
+}
+
+export function setImageSize(size: ImageSize): void {
+  if (!isImageSize(size)) return;
+
+  try {
+    window.localStorage.setItem(IMAGE_SIZE_STORAGE_KEY, size);
+  } catch {
+    /* storage unavailable — the pick still holds for this page view */
+  }
 }

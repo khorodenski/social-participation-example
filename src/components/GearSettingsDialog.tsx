@@ -1,14 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
-import { ModelError, testApiKey } from '../api/google';
+import { ModelError, testApiKey, type ImageSize } from '../api/google';
 import { pl } from '../i18n/pl';
-import { clearApiKey, getApiKey, setApiKey } from '../state/settings';
+import { clearApiKey, getApiKey, getImageSize, setApiKey, setImageSize } from '../state/settings';
 
 /**
- * F-3.1/F-3.2/F-3.3 — the lecturer's API key.
+ * F-3.1/F-3.2/F-3.3 — the lecturer's API key, and the resolution their images
+ * are generated at.
  *
  * The key is read from and written to `localStorage` through `settings.ts` and
  * goes nowhere else. "Testuj klucz" sends it to Google and nowhere else. It is
  * never put in a URL, never logged, and never reaches a Netlify Function.
+ *
+ * **The resolution saves on change; the key needs "Zapisz".** They are not
+ * inconsistent for the sake of it: the key is typed, long and easy to get half
+ * right, so it wants a deliberate save. The resolution is one of two values
+ * picked from a list, with nothing to mistype and nothing to half-finish.
  *
  * A native <dialog> carries its own modality: Esc closes it, focus stays inside
  * and the rest of the page is inert, with no library and no focus-trap of ours
@@ -24,6 +30,7 @@ export default function GearSettingsDialog() {
   const [revealed, setRevealed] = useState(false);
   const [testing, setTesting] = useState(false);
   const [status, setStatus] = useState<Status>(null);
+  const [size, setSize] = useState<ImageSize>(getImageSize);
 
   // Whether what is typed differs from what is stored (F-3.1).
   const stored = getApiKey() ?? '';
@@ -31,6 +38,9 @@ export default function GearSettingsDialog() {
 
   function open() {
     setValue(getApiKey() ?? '');
+    // Re-read rather than trusting the last render: another tab on the same
+    // laptop may have changed it.
+    setSize(getImageSize());
     setRevealed(false);
     setStatus(null);
     ref.current?.showModal();
@@ -69,6 +79,12 @@ export default function GearSettingsDialog() {
     clearApiKey();
     setValue('');
     setStatus({ tone: 'info', text: pl.settings.cleared });
+  }
+
+  function chooseSize(next: ImageSize) {
+    setSize(next);
+    setImageSize(next);
+    setStatus({ tone: 'ok', text: pl.settings.imageSizeSaved });
   }
 
   async function test() {
@@ -145,6 +161,23 @@ export default function GearSettingsDialog() {
             </div>
 
             <p className="muted">{pl.settings.apiKeyHint}</p>
+          </div>
+
+          <div className="field">
+            <label htmlFor="image-size">{pl.settings.imageSizeLabel}</label>
+
+            <select
+              id="image-size"
+              className="input"
+              value={size}
+              onChange={(event) => chooseSize(event.target.value as ImageSize)}
+              disabled={testing}
+            >
+              <option value="1K">{pl.settings.imageSize1K}</option>
+              <option value="2K">{pl.settings.imageSize2K}</option>
+            </select>
+
+            <p className="muted">{pl.settings.imageSizeHint}</p>
           </div>
 
           {status ? (

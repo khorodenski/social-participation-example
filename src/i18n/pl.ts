@@ -36,7 +36,7 @@ export const pl = {
     keyFailed: 'Klucz nie działa.',
     keyMissing: 'Brak klucza API.',
     clearKey: 'Usuń klucz',
-    open: 'Ustawienia klucza API',
+    open: 'Ustawienia',
     placeholder: 'Wklej klucz z Google AI Studio',
     reveal: 'Pokaż',
     hide: 'Ukryj',
@@ -44,6 +44,12 @@ export const pl = {
     saved: 'Klucz zapisany w tej przeglądarce.',
     cleared: 'Klucz usunięty.',
     unsaved: 'Klucz nie został jeszcze zapisany.',
+    imageSizeLabel: 'Rozdzielczość generowanych obrazów',
+    imageSizeHint:
+      'Ustawienie zapisuje się od razu, w tej przeglądarce. Dotyczy obrazów generowanych od tej chwili.',
+    imageSize1K: '1K — szybciej (ok. 11 s na obraz)',
+    imageSize2K: '2K — ostrzej na projektorze (ok. 20 s na obraz)',
+    imageSizeSaved: 'Rozdzielczość zapisana w tej przeglądarce.',
     privacy:
       'Klucz nie opuszcza tej przeglądarki. Nie trafia na serwer ani do zapisanych danych sesji.',
   },
