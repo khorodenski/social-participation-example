@@ -41,7 +41,8 @@ Vite + React 18 + TypeScript (strict) + `react-router-dom` v6. `@netlify/functio
 
 - Functions route via `config.path`, not via `netlify.toml` redirects. `netlify.toml` has only the SPA fallback.
 - All JSON errors from functions are `{ "error": "<polish message>" }`, using strings from `src/i18n/pl.ts`.
-- One blob per idea (`sessions/<id>/ideas/<ideaId>.json`) so concurrent attendee writes never race.
+- **Never hold a `@netlify/blobs` store in module scope, a singleton or any cache that outlives one request.** `getStore()` copies the short-lived token out of `NETLIFY_BLOBS_CONTEXT` into the client it returns, and Netlify refreshes that variable per invocation — a cached client in a warm container fails every call with `Failed to decode token: Token expired`. `netlify/functions/_blobs.ts` builds a client per operation for this reason.
+- **One blob per idea (`sessions/<id>/ideas/<ideaId>.json`) so concurrent attendee writes never race.
 - Every model response is zod-validated before it is persisted; invalid responses surface as a retryable error.
 - **Develop against `npx netlify-cli@23 dev --live`, not against deploys.** It tunnels the local `netlify dev` to a public `*.netlify.live` URL so phones can reach it, and costs no credits. The QR follows `window.location.origin`, so open the admin screen on the tunnel URL and it just works. It does not exercise the production build, real Blobs or deploy configuration, so the rehearsal still needs a real deploy.
 - **Automatic builds are OFF — the site is on "Stopped builds" (since 2026-09-05).** **Pushing `main` no longer deploys anything.** Deploys are built on this laptop and uploaded through the CLI:
@@ -52,7 +53,7 @@ Vite + React 18 + TypeScript (strict) + `react-router-dom` v6. `@netlify/functio
   ```
 
   The CLI reads `netlify.toml` for `publish` and `functions`, so nothing else is needed. `netlify.toml`'s `ignore` command is now dead weight — it only ever applied to Netlify-run builds.
-- **The CLI needs a one-time `login` and `link` on this machine**, and as of 2026-09-05 neither had been done. See section 5 of `docs/05-handoff.md`.
-- **Whether a CLI deploy still costs the flat 15 credits is unverified** — that is the whole reason for the switch. **Record the credit balance before and after the next deploy** and write the answer into the handoff. A Netlify-run build definitely cost 15; roughly 75 credits remained after the 2026-09-05 deploy.
+- **The CLI `login` and `link` are done on this machine** (2026-09-07), so a release needs no interactive step. See section 5 of `docs/05-handoff.md`.
+- **A CLI deploy costs the same flat 15 credits as a Netlify-run build.** Measured on 2026-09-07: 74 before, 59 after. Stopping automatic builds bought control over *when* credits are spent, not fewer of them — no push can spend one by accident. **59 credits is about three more deploys**, so batch changes and prove them on `npx netlify-cli@23 dev --live` first.
 - **Work happens on `dev`; `main` mirrors what is meant to be live.** Merging `dev` into `main` is now bookkeeping, not a deploy — do it so the branch still records what shipped, then run the CLI deploy. Branch deploys and deploy previews are both off, so pushing costs nothing either way.
 - Netlify shows a "Powered by Netlify" badge in the bottom-right corner by default. It is **turned off for this project in the Netlify dashboard**, so that corner is usable. If it ever reappears there, it will sit over the control bar's buttons and, later, over the gallery's third image.

@@ -45,46 +45,60 @@ export interface Store {
 
 /* ------------------------------------------------------------ blobs backend */
 
-function blobsStore(store: NetlifyStore): Store {
-  return {
-    backend: 'blobs',
-
-    async getText(key) {
-      return (await store.get(key, { type: 'text' })) ?? null;
-    },
-
-    async setText(key, value) {
-      await store.set(key, value);
-    },
-
-    async getBinary(key) {
-      const res = await store.getWithMetadata(key, { type: 'arrayBuffer' });
-      if (!res) return null;
-      const contentType =
-        typeof res.metadata?.contentType === 'string'
-          ? res.metadata.contentType
-          : 'application/octet-stream';
-      return { data: new Uint8Array(res.data), contentType };
-    },
-
-    async setBinary(key, data, contentType) {
-      const buffer = data.buffer.slice(
-        data.byteOffset,
-        data.byteOffset + data.byteLength,
-      ) as ArrayBuffer;
-      await store.set(key, buffer, { metadata: { contentType } });
-    },
-
-    async remove(key) {
-      await store.delete(key);
-    },
-
-    async list(prefix) {
-      const res = await store.list({ prefix });
-      return res.blobs.map((b) => b.key);
-    },
-  };
+/**
+ * A fresh Netlify client per operation, on purpose.
+ *
+ * `getStore()` copies the short-lived signed token out of
+ * `NETLIFY_BLOBS_CONTEXT` and keeps it inside the client it returns. Netlify
+ * refreshes that variable on every invocation, but a warm Lambda container
+ * reuses module state, so a client held at module scope keeps presenting the
+ * token it was born with. Once that token passes its expiry every call fails
+ * with `BlobsInternalError: Failed to decode token: Token expired`, and the
+ * container stays broken until it is recycled. Building the client per call is
+ * cheap — it makes no network request — and always reads the current token.
+ */
+function netlifyStore(): NetlifyStore {
+  return getNetlifyStore({ name: STORE_NAME, consistency: 'strong' });
 }
+
+const blobsStore: Store = {
+  backend: 'blobs',
+
+  async getText(key) {
+    return (await netlifyStore().get(key, { type: 'text' })) ?? null;
+  },
+
+  async setText(key, value) {
+    await netlifyStore().set(key, value);
+  },
+
+  async getBinary(key) {
+    const res = await netlifyStore().getWithMetadata(key, { type: 'arrayBuffer' });
+    if (!res) return null;
+    const contentType =
+      typeof res.metadata?.contentType === 'string'
+        ? res.metadata.contentType
+        : 'application/octet-stream';
+    return { data: new Uint8Array(res.data), contentType };
+  },
+
+  async setBinary(key, data, contentType) {
+    const buffer = data.buffer.slice(
+      data.byteOffset,
+      data.byteOffset + data.byteLength,
+    ) as ArrayBuffer;
+    await netlifyStore().set(key, buffer, { metadata: { contentType } });
+  },
+
+  async remove(key) {
+    await netlifyStore().delete(key);
+  },
+
+  async list(prefix) {
+    const res = await netlifyStore().list({ prefix });
+    return res.blobs.map((b) => b.key);
+  },
+};
 
 /* ------------------------------------------------------------- file backend */
 
@@ -180,28 +194,31 @@ const fileStore: Store = {
 
 /* --------------------------------------------------------------- selection */
 
-let storePromise: Promise<Store> | null = null;
+/**
+ * Only the *decision* is memoised, never a client. Which backend is available
+ * cannot change inside one container; a token can and does expire inside one.
+ */
+let backendPromise: Promise<StorageBackend> | null = null;
 
-async function selectStore(): Promise<Store> {
+async function selectBackend(): Promise<StorageBackend> {
   try {
-    const netlify = getNetlifyStore({ name: STORE_NAME, consistency: 'strong' });
     // Probe: a cheap call that fails fast when Blobs is not configured.
-    await netlify.list({ prefix: '__probe__' });
+    await netlifyStore().list({ prefix: '__probe__' });
     console.log(`[social-voting] storage backend: blobs (store "${STORE_NAME}")`);
-    return blobsStore(netlify);
+    return 'blobs';
   } catch (err) {
     console.log(
       `[social-voting] storage backend: file (.netlify/local-blobs) — Blobs unavailable: ${
         err instanceof Error ? err.message : String(err)
       }`,
     );
-    return fileStore;
+    return 'file';
   }
 }
 
-export function getStore(): Promise<Store> {
-  storePromise ??= selectStore();
-  return storePromise;
+export async function getStore(): Promise<Store> {
+  backendPromise ??= selectBackend();
+  return (await backendPromise) === 'blobs' ? blobsStore : fileStore;
 }
 
 /* ----------------------------------------------------------- JSON helpers */
