@@ -19,7 +19,8 @@
     "spike:grouping": "vitest run src/api/grouping.live.test.ts",
     "spike:expansion": "vitest run src/api/expansion.live.test.ts",
     "spike:image": "vitest run src/api/image.live.test.ts",
-    "bench:grouping": "vitest run src/api/grouping.bench.test.ts"
+    "bench:grouping": "vitest run src/api/grouping.bench.test.ts",
+    "tester": "node tools/idea-bot/server.mjs"
   },
   "dependencies": {
     "@google/genai": "^1.16.0",

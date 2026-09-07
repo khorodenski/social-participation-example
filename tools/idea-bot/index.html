@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Generator pomysłów testowych</title>
+    <style>
+      :root {
+        --bg: #f4f5f7;
+        --card: #ffffff;
+        --ink: #16181d;
+        --muted: #5f6674;
+        --line: #dfe2e8;
+        --accent: #1f5f4f;
+        --accent-ink: #ffffff;
+        --warn: #8a5300;
+        --warn-bg: #fff4e0;
+        --bad: #9b1c1c;
+        --bad-bg: #fdecec;
+        --good: #17603f;
+        --good-bg: #e7f5ec;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 2rem 1.25rem 4rem;
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          15px/1.5 system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          sans-serif;
+      }
+
+      main {
+        max-width: 46rem;
+        margin: 0 auto;
+        display: grid;
+        gap: 1.25rem;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 1.5rem;
+      }
+
+      h2 {
+        margin: 0 0 0.75rem;
+        font-size: 1.05rem;
+      }
+
+      .lede {
+        margin: 0.35rem 0 0;
+        color: var(--muted);
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 1.1rem 1.25rem 1.25rem;
+      }
+
+      label {
+        display: block;
+        margin: 0 0 0.3rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      .hint {
+        font-weight: 400;
+        color: var(--muted);
+      }
+
+      input[type='text'],
+      input[type='password'],
+      input[type='number'],
+      textarea {
+        width: 100%;
+        padding: 0.55rem 0.65rem;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        font: inherit;
+        background: #fff;
+        color: inherit;
+      }
+
+      textarea {
+        resize: vertical;
+      }
+
+      .field + .field {
+        margin-top: 0.9rem;
+      }
+
+      .row {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-end;
+      }
+
+      .row > .field {
+        flex: 1;
+        margin-top: 0;
+      }
+
+      .check {
+        display: flex;
+        gap: 0.45rem;
+        align-items: center;
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 400;
+        color: var(--muted);
+      }
+
+      .check input {
+        margin: 0;
+      }
+
+      button {
+        padding: 0.55rem 1rem;
+        border: 1px solid var(--accent);
+        border-radius: 7px;
+        background: var(--accent);
+        color: var(--accent-ink);
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      button.ghost {
+        background: transparent;
+        color: var(--accent);
+      }
+
+      button.tiny {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.8rem;
+        font-weight: 400;
+        border-color: var(--line);
+        background: transparent;
+        color: var(--muted);
+      }
+
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+
+      .actions {
+        margin-top: 1rem;
+        display: flex;
+        gap: 0.6rem;
+        align-items: center;
+      }
+
+      .note {
+        margin: 0.9rem 0 0;
+        padding: 0.6rem 0.75rem;
+        border-radius: 7px;
+        font-size: 0.9rem;
+      }
+
+      .note--info {
+        background: #eef1f5;
+        color: var(--muted);
+      }
+
+      .note--warn {
+        background: var(--warn-bg);
+        color: var(--warn);
+      }
+
+      .note--bad {
+        background: var(--bad-bg);
+        color: var(--bad);
+      }
+
+      .note--good {
+        background: var(--good-bg);
+        color: var(--good);
+      }
+
+      dl {
+        margin: 0;
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 0.35rem 0.9rem;
+        font-size: 0.92rem;
+      }
+
+      dt {
+        color: var(--muted);
+      }
+
+      dd {
+        margin: 0;
+      }
+
+      ol {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 0.6rem;
+      }
+
+      li {
+        display: grid;
+        grid-template-columns: 1.9rem 1fr auto;
+        gap: 0.6rem;
+        align-items: start;
+      }
+
+      li .idx {
+        padding-top: 0.55rem;
+        color: var(--muted);
+        font-size: 0.85rem;
+        text-align: right;
+      }
+
+      li textarea {
+        min-height: 3.1rem;
+      }
+
+      li .side {
+        display: grid;
+        gap: 0.3rem;
+        justify-items: end;
+        padding-top: 0.35rem;
+      }
+
+      .chip {
+        padding: 0.15rem 0.45rem;
+        border-radius: 5px;
+        font-size: 0.78rem;
+        white-space: nowrap;
+      }
+
+      .chip--good {
+        background: var(--good-bg);
+        color: var(--good);
+      }
+
+      .chip--bad {
+        background: var(--bad-bg);
+        color: var(--bad);
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <header>
+        <h1>Generator pomysłów testowych</h1>
+        <p class="lede">
+          Wkleja wymyślone pomysły do otwartej sesji, żeby dało się przećwiczyć grupowanie i obrazy
+          bez sali pełnej ludzi. Działa lokalnie — nic nie jest publikowane.
+        </p>
+      </header>
+
+      <section class="card">
+        <h2>1. Sesja</h2>
+        <div class="field">
+          <label for="target">
+            Link do sesji
+            <span class="hint">— strona głosowania, panel lektora albo sam adres z id</span>
+          </label>
+          <input
+            id="target"
+            type="text"
+            spellcheck="false"
+            placeholder="https://cos.netlify.live/s/abc123"
+          />
+        </div>
+        <div class="actions">
+          <button id="inspect" class="ghost">Sprawdź sesję</button>
+        </div>
+        <div id="sessionNote"></div>
+        <div id="sessionBox" hidden></div>
+      </section>
+
+      <section class="card">
+        <h2>2. Generowanie</h2>
+        <div class="field">
+          <label for="key">
+            Klucz Google API <span class="hint">— zostaje w tej przeglądarce i w tym procesie</span>
+          </label>
+          <input id="key" type="password" autocomplete="off" spellcheck="false" />
+          <label class="check">
+            <input id="remember" type="checkbox" />
+            Zapamiętaj klucz w tej przeglądarce
+          </label>
+        </div>
+
+        <div class="row field">
+          <div class="field">
+            <label for="count">Ile pomysłów</label>
+            <input id="count" type="number" min="1" max="60" value="25" />
+          </div>
+          <div class="field" style="flex: 3">
+            <label for="hint">Wskazówka dla modelu <span class="hint">— opcjonalnie</span></label>
+            <input
+              id="hint"
+              type="text"
+              placeholder="np. więcej pomysłów o wieczorze i światłach"
+            />
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="generate">Generuj pomysły</button>
+          <span id="genStatus" class="hint"></span>
+        </div>
+        <div id="genNote"></div>
+      </section>
+
+      <section class="card" id="ideasCard" hidden>
+        <h2>3. Pomysły (<span id="ideaCount">0</span>)</h2>
+        <p class="lede" style="margin: -0.35rem 0 0.9rem">
+          Można je poprawić albo usunąć przed wysłaniem.
+        </p>
+        <ol id="ideas"></ol>
+        <div class="actions">
+          <button id="submit">Wyślij do sesji</button>
+          <button id="clear" class="ghost">Wyczyść listę</button>
+          <span id="sendStatus" class="hint"></span>
+        </div>
+        <div id="sendNote"></div>
+      </section>
+    </main>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+
+      const STORE = {
+        target: 'idea-bot:target',
+        key: 'idea-bot:key',
+        count: 'idea-bot:count',
+      };
+
+      /* ------------------------------------------------------------ helpers */
+
+      function note(box, kind, text) {
+        box.innerHTML = '';
+        if (!text) return;
+        const div = document.createElement('div');
+        div.className = `note note--${kind}`;
+        div.textContent = text;
+        box.append(div);
+      }
+
+      async function post(endpoint, body) {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+
+        const data = await res.json().catch(() => null);
+        if (!res.ok) throw new Error(data?.error || `Błąd ${res.status}.`);
+        return data;
+      }
+
+      function remember() {
+        localStorage.setItem(STORE.target, $('target').value.trim());
+        localStorage.setItem(STORE.count, $('count').value);
+        if ($('remember').checked) localStorage.setItem(STORE.key, $('key').value);
+        else localStorage.removeItem(STORE.key);
+      }
+
+      /* ------------------------------------------------------ 1. the session */
+
+      const STAGES = {
+        draft: 'szkic',
+        voting: 'zbieranie pomysłów',
+        grouping: 'grupowanie',
+        results: 'wyniki',
+        expanding: 'rozwijanie',
+        expanded: 'rozwinięte',
+        visualizing: 'generowanie obrazów',
+        gallery: 'galeria',
+      };
+
+      /** Polish counts one, two-to-four and everything else differently. */
+      function plural(n, one, few, many) {
+        const last = n % 10;
+        const lastTwo = n % 100;
+        if (n === 1) return `${n} ${one}`;
+        if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)) return `${n} ${few}`;
+        return `${n} ${many}`;
+      }
+
+      function renderSession(data) {
+        const box = $('sessionBox');
+        const s = data.session;
+
+        const photos = s.resources.filter((r) => r.type === 'image').length;
+        const notes = s.resources.filter((r) => r.type === 'text').length;
+
+        box.hidden = false;
+        box.innerHTML = '';
+
+        const dl = document.createElement('dl');
+        const rows = [
+          ['Tytuł', s.title],
+          ['Etap', STAGES[s.stage] ?? s.stage],
+          ['Wprowadzenie', s.intro.trim() || '—'],
+          [
+            'Materiały',
+            `${plural(notes, 'notatka', 'notatki', 'notatek')}, ${plural(photos, 'zdjęcie', 'zdjęcia', 'zdjęć')} (model zobaczy ${s.images})`,
+          ],
+          ['Model', data.model],
+        ];
+
+        for (const [term, value] of rows) {
+          const dt = document.createElement('dt');
+          dt.textContent = term;
+          const dd = document.createElement('dd');
+          dd.textContent = value;
+          dl.append(dt, dd);
+        }
+
+        box.append(dl);
+
+        if (s.stage !== 'voting') {
+          note(
+            $('sessionNote'),
+            'warn',
+            `Sesja jest w etapie „${STAGES[s.stage] ?? s.stage}”. Wysyłka zostanie odrzucona — otwórz zbieranie pomysłów w aplikacji lektora.`,
+          );
+        } else {
+          note($('sessionNote'), 'good', 'Zbieranie pomysłów jest otwarte.');
+        }
+      }
+
+      $('inspect').addEventListener('click', async () => {
+        const button = $('inspect');
+        button.disabled = true;
+        note($('sessionNote'), 'info', 'Sprawdzam…');
+        $('sessionBox').hidden = true;
+
+        try {
+          remember();
+          renderSession(await post('/inspect', { target: $('target').value }));
+        } catch (err) {
+          note($('sessionNote'), 'bad', err.message);
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      /* -------------------------------------------------------- 2. generate */
+
+      function renderIdeas(texts) {
+        const list = $('ideas');
+        list.innerHTML = '';
+
+        texts.forEach((text, index) => {
+          const li = document.createElement('li');
+
+          const idx = document.createElement('div');
+          idx.className = 'idx';
+          idx.textContent = String(index + 1);
+
+          const area = document.createElement('textarea');
+          area.rows = 2;
+          area.value = text;
+
+          const side = document.createElement('div');
+          side.className = 'side';
+
+          const remove = document.createElement('button');
+          remove.className = 'tiny';
+          remove.type = 'button';
+          remove.textContent = 'Usuń';
+          remove.addEventListener('click', () => {
+            li.remove();
+            renumber();
+          });
+
+          side.append(remove);
+          li.append(idx, area, side);
+          list.append(li);
+        });
+
+        renumber();
+        $('ideasCard').hidden = texts.length === 0;
+      }
+
+      function renumber() {
+        const items = [...$('ideas').children];
+        items.forEach((li, index) => {
+          li.querySelector('.idx').textContent = String(index + 1);
+        });
+        $('ideaCount').textContent = String(items.length);
+      }
+
+      let ticker = null;
+
+      function startTicker(target, label) {
+        const startedAt = Date.now();
+        target.textContent = `${label} 0 s`;
+        ticker = setInterval(() => {
+          target.textContent = `${label} ${Math.round((Date.now() - startedAt) / 1000)} s`;
+        }, 1000);
+      }
+
+      function stopTicker(target, text = '') {
+        clearInterval(ticker);
+        ticker = null;
+        target.textContent = text;
+      }
+
+      $('generate').addEventListener('click', async () => {
+        const button = $('generate');
+        button.disabled = true;
+        note($('genNote'), '', '');
+        startTicker($('genStatus'), 'generuję…');
+
+        try {
+          remember();
+          const data = await post('/generate', {
+            target: $('target').value,
+            apiKey: $('key').value,
+            count: Number($('count').value),
+            hint: $('hint').value,
+          });
+
+          stopTicker($('genStatus'));
+          renderIdeas(data.ideas);
+          note(
+            $('genNote'),
+            'good',
+            `Gotowe: ${plural(data.ideas.length, 'pomysł', 'pomysły', 'pomysłów')} w ${data.seconds} s.` +
+              (data.stage === 'voting' ? '' : ' Uwaga: sesja nie zbiera teraz pomysłów.'),
+          );
+          $('ideasCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } catch (err) {
+          stopTicker($('genStatus'));
+          note($('genNote'), 'bad', err.message);
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      /* ---------------------------------------------------------- 3. submit */
+
+      $('clear').addEventListener('click', () => {
+        renderIdeas([]);
+        note($('sendNote'), '', '');
+      });
+
+      $('submit').addEventListener('click', async () => {
+        const button = $('submit');
+        const items = [...$('ideas').children];
+        const texts = items.map((li) => li.querySelector('textarea').value.trim());
+
+        if (texts.every((text) => text.length === 0)) {
+          note($('sendNote'), 'bad', 'Nie ma czego wysłać.');
+          return;
+        }
+
+        button.disabled = true;
+        note($('sendNote'), '', '');
+        startTicker($('sendStatus'), 'wysyłam…');
+
+        try {
+          const data = await post('/submit', { target: $('target').value, texts });
+          stopTicker($('sendStatus'));
+
+          data.results.forEach((result, index) => {
+            const side = items[index]?.querySelector('.side');
+            if (!side) return;
+
+            const chip = document.createElement('span');
+            chip.className = `chip chip--${result.ok ? 'good' : 'bad'}`;
+            chip.textContent = result.ok ? 'wysłany' : result.error;
+            side.append(chip);
+          });
+
+          const failed = data.results.length - data.sent;
+          note(
+            $('sendNote'),
+            failed === 0 ? 'good' : 'warn',
+            failed === 0
+              ? `Wysłano wszystkie ${data.sent}. Odśwież licznik w aplikacji lektora.`
+              : `Wysłano ${data.sent} z ${data.results.length}. ${failed} nie przeszło — powód przy każdym.`,
+          );
+        } catch (err) {
+          stopTicker($('sendStatus'));
+          note($('sendNote'), 'bad', err.message);
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      /* ----------------------------------------------------------- restore */
+
+      $('target').value = localStorage.getItem(STORE.target) ?? '';
+      $('count').value = localStorage.getItem(STORE.count) ?? '25';
+
+      const savedKey = localStorage.getItem(STORE.key);
+      if (savedKey) {
+        $('key').value = savedKey;
+        $('remember').checked = true;
+      }
+
+      $('target').focus();
+    </script>
+  </body>
+</html>
