@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  firstImage,
+  publicImage,
   RESOURCE_ID_LENGTH,
   addResource,
   moveResource,
@@ -147,5 +149,41 @@ describe('referenceCount', () => {
 
   it('never counts a text resource, whatever the flag says', () => {
     expect(referenceCount([{ ...text('r1', 'x'), useAsReference: true }])).toBe(0);
+  });
+});
+
+describe('firstImage / publicImage', () => {
+  const note: Resource = {
+    id: 'n1',
+    type: 'text',
+    description: 'N',
+    text: 't',
+    useAsReference: false,
+  };
+  const photo: Resource = {
+    id: 'p1',
+    type: 'image',
+    description: 'Widok od dworca',
+    imageKey: 'sessions/s/resources/p1.jpg',
+    previewKey: 'sessions/s/resources/p1-preview.jpg',
+    useAsReference: false,
+  };
+  const later: Resource = { ...photo, id: 'p2', description: 'Drugie' };
+
+  it('skips notes and takes the first photograph', () => {
+    expect(firstImage([note, photo, later])?.id).toBe('p1');
+    expect(firstImage([note])).toBeUndefined();
+  });
+
+  it('answers with the preview key and the description', () => {
+    expect(publicImage([note, photo])).toEqual({
+      key: 'sessions/s/resources/p1-preview.jpg',
+      description: 'Widok od dworca',
+    });
+  });
+
+  it('falls back to the reference copy when no preview was stored', () => {
+    expect(publicImage([{ ...photo, previewKey: undefined }])?.key).toBe(photo.imageKey);
+    expect(publicImage([])).toBeNull();
   });
 });

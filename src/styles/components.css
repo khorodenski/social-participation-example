@@ -457,10 +457,38 @@
   color: var(--text-muted);
 }
 
+/* The photograph sits level with the QR code: the same height, so the row
+   reads as one line of three things — place, code, count. */
+.voting__photo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  max-width: min(40vw, 640px);
+}
+
+.voting__photo > img {
+  height: min(42vh, 436px);
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+  background: var(--bg-elevated);
+}
+
+.voting__photo > figcaption {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
 /* Stack on a narrow projector or a laptop screen in portrait. */
 @media (max-width: 900px) {
   .voting__body {
     gap: var(--sp-8);
+  }
+
+  .voting__photo {
+    max-width: 100%;
   }
 }
 
@@ -501,6 +529,24 @@
 .attendee .textarea {
   font-size: var(--fs-md);
   min-height: 9rem;
+}
+
+.attendee__photo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.attendee__photo > img {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: var(--bg-elevated);
+}
+
+.attendee__photo > figcaption {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
 }
 
 .attendee__counter {

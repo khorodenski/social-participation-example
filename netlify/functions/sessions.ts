@@ -11,6 +11,7 @@ import {
 } from './_blobs';
 import { json, jsonError } from './_http';
 import { pl } from '../../src/i18n/pl';
+import { publicImage } from '../../src/state/resources';
 import {
   createSessionSchema,
   sessionIndexSchema,
@@ -96,7 +97,12 @@ export default async (req: Request, _context: Context): Promise<Response> => {
 
     if (tail === 'public') {
       if (req.method !== 'GET') return jsonError(pl.errors.methodNotAllowed, 405);
-      return json({ title: session.title, intro: session.intro, stage: session.stage });
+      return json({
+        title: session.title,
+        intro: session.intro,
+        stage: session.stage,
+        image: publicImage(session.resources),
+      });
     }
 
     if (tail === 'reset') {

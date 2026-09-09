@@ -115,11 +115,23 @@ export type SessionSummary = z.infer<typeof sessionSummarySchema>;
 
 export const sessionIndexSchema = z.array(sessionSummarySchema);
 
+/**
+ * The one photograph the attendee page and the QR screen show as the point of
+ * reference: the first image resource of the session. `key` is the small
+ * preview copy, which is what a phone on hall wi-fi should be loading.
+ */
+export const publicImageSchema = z.object({
+  key: z.string().min(1),
+  description: z.string(),
+});
+export type PublicImage = z.infer<typeof publicImageSchema>;
+
 /** What the attendee page is allowed to see (GET /api/sessions/:id/public). */
 export const publicSessionSchema = z.object({
   title: z.string(),
   intro: z.string(),
   stage: stageSchema,
+  image: publicImageSchema.nullable().default(null),
 });
 export type PublicSession = z.infer<typeof publicSessionSchema>;
 
