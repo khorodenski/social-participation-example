@@ -124,6 +124,14 @@ export function patchSession(id: string, patch: SessionPatch): Promise<Session> 
   );
 }
 
+export function deleteSession(id: string): Promise<{ ok: boolean }> {
+  return request(
+    `/sessions/${encodeURIComponent(id)}`,
+    { method: 'DELETE' },
+    z.object({ ok: z.boolean() }),
+  );
+}
+
 export function resetSession(id: string): Promise<Session> {
   return request(`/sessions/${encodeURIComponent(id)}/reset`, { method: 'POST' }, sessionSchema);
 }

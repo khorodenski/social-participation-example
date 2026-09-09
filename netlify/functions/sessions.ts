@@ -6,6 +6,7 @@ import {
   imagesPrefix,
   listKeys,
   readJson,
+  resourcesPrefix,
   sessionKey,
   writeJson,
 } from './_blobs';
@@ -124,6 +125,23 @@ export default async (req: Request, _context: Context): Promise<Response> => {
     }
 
     if (req.method === 'GET') return json(session);
+
+    // Everything under the session's prefix goes, then the document, then the
+    // index entry. In that order: an interrupted delete leaves a session that
+    // still opens and can be deleted again, never an index entry that 404s.
+    if (req.method === 'DELETE') {
+      for (const prefix of [ideasPrefix(id), imagesPrefix(id), resourcesPrefix(id)]) {
+        for (const key of await listKeys(prefix)) await deleteKey(key);
+      }
+      await deleteKey(sessionKey(id));
+
+      const index = await readIndex();
+      await writeJson(
+        SESSION_INDEX_KEY,
+        index.filter((entry) => entry.id !== id),
+      );
+      return json({ ok: true });
+    }
 
     if (req.method === 'PATCH') {
       const body: unknown = await req.json().catch(() => null);

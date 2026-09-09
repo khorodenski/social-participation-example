@@ -78,6 +78,9 @@ export const pl = {
     introPlaceholder: 'np. Jak urządzić to miejsce?',
     createdAt: 'Utworzono',
     backToList: 'Wróć do listy sesji',
+    delete: 'Usuń sesję',
+    deleteConfirm: 'Usunąć? Tej operacji nie można cofnąć.',
+    deleting: 'Usuwam…',
   },
 
   stages: {

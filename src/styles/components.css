@@ -609,6 +609,22 @@
   flex: none;
 }
 
+.session-list__actions {
+  display: flex;
+  gap: var(--sp-2);
+  flex: none;
+}
+
+/* A quiet X until it is armed, then it says in words what it is about to do. */
+.session-list__delete {
+  min-width: 2.5rem;
+  color: var(--text-dim);
+}
+
+.session-list__delete.is-armed {
+  color: var(--danger);
+}
+
 @media (max-width: 520px) {
   .session-list__item {
     flex-direction: column;
