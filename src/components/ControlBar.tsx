@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import GearSettingsDialog from './GearSettingsDialog';
 import Logo from './Logo';
 import { pl } from '../i18n/pl';
@@ -53,7 +54,11 @@ export default function ControlBar({ stageLabel, actions, busy, error }: Control
 
   return (
     <div className="control-bar">
-      <Logo className="control-bar__logo" />
+      {/* The way back to the session list from any stage. No confirmation:
+          nothing is lost, the session stays in whatever stage it is in. */}
+      <Link to="/admin" className="control-bar__home" title={pl.admin.backToList}>
+        <Logo className="control-bar__logo" />
+      </Link>
       <span className="control-bar__rule" aria-hidden="true" />
       <span className="control-bar__stage">{stageLabel}</span>
 

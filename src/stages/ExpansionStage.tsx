@@ -37,16 +37,90 @@ interface Failure {
  */
 type CardState =
   | { status: 'working' }
-  | { status: 'done'; prompt: string; failure?: Failure }
+  | { status: 'done'; prompt: string; edited: boolean; failure?: Failure }
   | ({ status: 'failed' } & Failure);
 
 interface PromptCardProps {
   group: Group;
   state: CardState;
   onRetry: () => void;
+  /** The lecturer's own wording, persisted in place of the model's. */
+  onSave: (prompt: string) => Promise<void>;
 }
 
-function PromptCard({ group, state, onRetry }: PromptCardProps) {
+/** How long "Skopiowano" and an armed "Czy na pewno?" stay on screen. */
+const FEEDBACK_MS = 2500;
+
+/**
+ * Copies the prompt to the clipboard, so the lecturer can paste it into
+ * another tool. The clipboard API needs a secure context, which `localhost`,
+ * the tunnel and the deploy all are.
+ */
+function CopyButton({ text }: { text: string }) {
+  const [note, setNote] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (note === null) return;
+    const timer = window.setTimeout(() => setNote(null), FEEDBACK_MS);
+    return () => window.clearTimeout(timer);
+  }, [note]);
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(text);
+      setNote(pl.expansion.copied);
+    } catch {
+      setNote(pl.expansion.copyFailed);
+    }
+  }
+
+  return (
+    <button type="button" className="btn" onClick={() => void copy()}>
+      {note ?? pl.expansion.copy}
+    </button>
+  );
+}
+
+function PromptCard({ group, state, onRetry, onSave }: PromptCardProps) {
+  // Editing is local until "Zapisz": a half-typed prompt must never be
+  // persisted, and "Anuluj" has to be free.
+  const [draft, setDraft] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // Re-expanding a hand-edited prompt throws the edit away, so it asks once,
+  // the same way the control bar does.
+  const [arming, setArming] = useState(false);
+
+  useEffect(() => {
+    if (!arming) return;
+    const timer = window.setTimeout(() => setArming(false), FEEDBACK_MS);
+    return () => window.clearTimeout(timer);
+  }, [arming]);
+
+  const edited = state.status === 'done' && state.edited;
+
+  function retry() {
+    if (edited && !arming) {
+      setArming(true);
+      return;
+    }
+    setArming(false);
+    setDraft(null);
+    onRetry();
+  }
+
+  async function save() {
+    const trimmed = (draft ?? '').trim();
+    if (trimmed.length === 0) return;
+    setSaving(true);
+    try {
+      await onSave(trimmed);
+      setDraft(null);
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <li className={`prompt-card is-${state.status}`}>
       <h2 className="prompt-card__label">{group.label}</h2>
@@ -77,11 +151,25 @@ function PromptCard({ group, state, onRetry }: PromptCardProps) {
       {state.status === 'done' ? (
         <div className="prompt-card__body">
           {/* A-3 — the heading stays Polish even though the prompt is English. */}
-          <h3 className="prompt-card__heading">{pl.expansion.promptLabel}</h3>
-          {/* F-7.3 — read-only. Nothing here is an input. */}
-          <p className="prompt-card__prompt" lang="en">
-            {state.prompt}
-          </p>
+          <h3 className="prompt-card__heading">
+            {pl.expansion.promptLabel}
+            {edited ? <span className="prompt-card__edited"> · {pl.expansion.edited}</span> : null}
+          </h3>
+
+          {draft === null ? (
+            <p className="prompt-card__prompt" lang="en">
+              {state.prompt}
+            </p>
+          ) : (
+            <textarea
+              className="prompt-card__prompt prompt-card__editor"
+              lang="en"
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              disabled={saving}
+              autoFocus
+            />
+          )}
 
           {state.failure ? (
             <p className="error-text prompt-card__note" role="alert">
@@ -89,10 +177,44 @@ function PromptCard({ group, state, onRetry }: PromptCardProps) {
             </p>
           ) : null}
 
-          {/* F-7.4 — per card, never "regenerate all". */}
-          <button type="button" className="btn prompt-card__again" onClick={onRetry}>
-            {pl.common.reExpand}
-          </button>
+          <div className="prompt-card__actions">
+            {draft === null ? (
+              <>
+                <button type="button" className="btn" onClick={() => setDraft(state.prompt)}>
+                  {pl.expansion.edit}
+                </button>
+                <CopyButton text={state.prompt} />
+                {/* F-7.4 — per card, never "regenerate all". */}
+                <button
+                  type="button"
+                  className={arming ? 'btn btn--danger' : 'btn'}
+                  onClick={retry}
+                  title={edited ? pl.expansion.reExpandOverwrites : undefined}
+                >
+                  {arming ? pl.common.confirm : pl.common.reExpand}
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  onClick={() => void save()}
+                  disabled={saving || draft.trim().length === 0}
+                >
+                  {saving ? pl.app.loading : pl.common.save}
+                </button>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => setDraft(null)}
+                  disabled={saving}
+                >
+                  {pl.common.cancel}
+                </button>
+              </>
+            )}
+          </div>
         </div>
       ) : null}
     </li>
@@ -217,6 +339,22 @@ export default function ExpansionStage({ session, onExpanded }: ExpansionStagePr
     [runFor],
   );
 
+  /**
+   * A hand edit goes through the same merge as a model result, so it can never
+   * drop a neighbour's prompt. `createdAt` is kept: it still says when the
+   * model wrote the original, and `editedAt` says when the lecturer changed it.
+   */
+  const save = useCallback(
+    async (group: Group, prompt: string) => {
+      const stored = session.expansions[group.id];
+      const now = Date.now();
+      await onExpanded({
+        [group.id]: { prompt, createdAt: stored?.createdAt ?? now, editedAt: now },
+      });
+    },
+    [session, onExpanded],
+  );
+
   if (groups.length === 0) {
     return (
       <section className="page--stage">
@@ -231,11 +369,15 @@ export default function ExpansionStage({ session, onExpanded }: ExpansionStagePr
     // something is happening instead of leaving the old prompt sitting there.
     if (running.includes(group.id)) return { status: 'working' };
 
-    const prompt = session.expansions[group.id]?.prompt ?? fresh[group.id];
+    const stored = session.expansions[group.id];
+    const prompt = stored?.prompt ?? fresh[group.id];
     const failure = failures[group.id];
+    const edited = stored?.editedAt !== undefined;
 
     if (prompt !== undefined)
-      return failure ? { status: 'done', prompt, failure } : { status: 'done', prompt };
+      return failure
+        ? { status: 'done', prompt, edited, failure }
+        : { status: 'done', prompt, edited };
     if (failure) return { status: 'failed', ...failure };
 
     return { status: 'working' };
@@ -267,6 +409,7 @@ export default function ExpansionStage({ session, onExpanded }: ExpansionStagePr
             group={group}
             state={stateFor(group)}
             onRetry={() => retry(group)}
+            onSave={(prompt) => save(group, prompt)}
           />
         ))}
       </ul>

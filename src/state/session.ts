@@ -78,6 +78,8 @@ export type Group = z.infer<typeof groupSchema>;
 export const expansionSchema = z.object({
   prompt: z.string(),
   createdAt: z.number(),
+  /** Set when the lecturer changed the prompt by hand; a re-expansion clears it. */
+  editedAt: z.number().optional(),
 });
 export type Expansion = z.infer<typeof expansionSchema>;
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { galleryItems, stepIndex } from './gallery';
+import { downloadFileName, galleryItems, stepIndex } from './gallery';
 import { sessionSchema, type Group, type Session } from './session';
 
 function group(id: string, label: string): Group {
@@ -82,5 +82,22 @@ describe('stepIndex', () => {
 
   it('does not divide by zero when there is nothing to show', () => {
     expect(stepIndex(0, 0, 1)).toBe(0);
+  });
+});
+
+describe('downloadFileName', () => {
+  it('joins the title and the label and keeps the extension', () => {
+    expect(
+      downloadFileName('Plac przed dworcem', 'Zieleń i ławki', 'sessions/x/images/g1.jpg'),
+    ).toBe('Plac przed dworcem - Zieleń i ławki.jpg');
+  });
+
+  it('replaces the characters a Windows file name cannot hold', () => {
+    expect(downloadFileName('Plac: "przed"', 'A/B?', 'k.jpg')).toBe('Plac przed - A B.jpg');
+  });
+
+  it('falls back to a plain name when both parts are empty', () => {
+    expect(downloadFileName('', '   ', 'k.jpg')).toBe('obraz.jpg');
+    expect(downloadFileName('', '', 'noext')).toBe('obraz');
   });
 });

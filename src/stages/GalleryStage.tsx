@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { assetUrl } from '../api/client';
 import { pl } from '../i18n/pl';
-import { galleryItems, stepIndex } from '../state/gallery';
+import { downloadFileName, galleryItems, stepIndex } from '../state/gallery';
 import { generatedImageSrc } from '../state/visualize';
 import type { Session } from '../state/session';
 
@@ -106,6 +106,14 @@ export default function GalleryStage({ session }: { session: Session }) {
               />
               <span className="gallery__label">{item.group.label}</span>
             </button>
+            {/* Same origin as the page, so a plain download link is enough. */}
+            <a
+              className="btn gallery__download"
+              href={assetUrl(item.image.imageKey)}
+              download={downloadFileName(session.title, item.group.label, item.image.imageKey)}
+            >
+              {pl.gallery.download}
+            </a>
           </li>
         ))}
       </ul>

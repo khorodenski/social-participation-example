@@ -77,6 +77,7 @@ export const pl = {
     titlePlaceholder: 'np. Plac przed dworcem',
     introPlaceholder: 'np. Jak urządzić to miejsce?',
     createdAt: 'Utworzono',
+    backToList: 'Wróć do listy sesji',
   },
 
   stages: {
@@ -113,6 +114,12 @@ export const pl = {
     failed: 'Nie udało się napisać promptu.',
     noSelection: 'Nie wybrano żadnej grupy.',
     ready: 'Gotowe',
+    edit: 'Edytuj',
+    edited: 'Prompt zmieniony ręcznie',
+    copy: 'Kopiuj prompt',
+    copied: 'Skopiowano',
+    copyFailed: 'Nie udało się skopiować.',
+    reExpandOverwrites: 'To nadpisze ręczne zmiany. Czy na pewno?',
   },
 
   gallery: {
@@ -121,6 +128,7 @@ export const pl = {
     next: 'Następny obraz',
     noImages: 'Nie ma jeszcze żadnego obrazu.',
     hint: 'Kliknij obraz, aby otworzyć go na pełnym ekranie.',
+    download: 'Pobierz',
   },
 
   visualize: {

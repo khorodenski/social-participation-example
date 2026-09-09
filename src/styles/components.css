@@ -158,6 +158,17 @@
   gap: var(--sp-4);
 }
 
+.control-bar__home {
+  display: flex;
+  flex: none;
+  line-height: 0;
+}
+
+.control-bar__home:hover,
+.control-bar__home:focus-visible {
+  opacity: 0.7;
+}
+
 .control-bar__logo {
   height: 1.5rem;
   width: auto;
@@ -740,8 +751,29 @@
   font-size: var(--fs-xs);
 }
 
-.prompt-card__again {
+.prompt-card__actions {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
   align-self: flex-start;
+}
+
+/* Quiet, next to the heading: the room should not read it as an error. */
+.prompt-card__edited {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: var(--fw-body);
+}
+
+/* The same box as the read-only prompt, so switching to edit does not move
+   the card. Resizable only vertically: the cards share a row. */
+.prompt-card__editor {
+  resize: vertical;
+  min-height: 8rem;
+  padding: var(--sp-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-inset);
 }
 
 /* The same slow breath as the grouping stage: this one sits on a projector for
@@ -1301,10 +1333,18 @@
 }
 
 /* Small and quiet: the picture is the thing being looked at (N-2). */
+.image-card__actions {
+  display: flex;
+  gap: var(--sp-2);
+  flex: none;
+}
+
 .image-card__again {
   font-size: var(--fs-xs);
   padding: var(--sp-1) var(--sp-3);
   flex: none;
+  text-decoration: none;
+  color: inherit;
 }
 
 .image-card__note {
@@ -1375,6 +1415,22 @@
   font-weight: var(--fw-bold);
   text-align: center;
   background: var(--bg-elevated);
+}
+
+.gallery__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+/* Small and quiet under the picture: the room looks at the image, the
+   lecturer finds the link. */
+.gallery__download {
+  font-size: var(--fs-xs);
+  padding: var(--sp-1) var(--sp-3);
+  text-decoration: none;
+  color: inherit;
 }
 
 .gallery__hint {
