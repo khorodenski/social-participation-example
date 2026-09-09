@@ -1790,3 +1790,123 @@
   align-items: center;
   gap: var(--sp-3);
 }
+
+/* ------------------------------------------------------------- intro stage */
+
+/* The opener: photograph large on the left, notes beside it. A hero like the
+   voting stage, so it keeps the centring of `.page--session > section`. */
+.intro {
+  width: 100%;
+}
+
+.intro__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.intro__body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--sp-12);
+  width: 100%;
+  max-width: 88rem;
+}
+
+.intro__photo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  flex: 1 1 60%;
+  min-width: 0;
+}
+
+.intro__photo > img {
+  max-height: 62vh;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+  background: var(--bg-elevated);
+}
+
+.intro__photo > figcaption {
+  font-size: var(--fs-md);
+  color: var(--text-muted);
+}
+
+.intro__empty {
+  flex: 1 1 60%;
+}
+
+.intro__aside {
+  flex: 1 1 32%;
+  min-width: 18rem;
+  max-width: 34rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  text-align: left;
+  max-height: 62vh;
+  overflow-y: auto;
+}
+
+.intro__heading {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: var(--sp-3);
+}
+
+.intro__notes ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.intro__notes li {
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--bg-elevated);
+  font-size: var(--fs-md);
+  line-height: 1.5;
+}
+
+.intro__notes strong {
+  display: block;
+  margin-bottom: var(--sp-1);
+}
+
+.intro__more ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  gap: var(--sp-2);
+}
+
+.intro__more img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+  background: var(--bg-elevated);
+}
+
+@media (max-width: 900px) {
+  .intro__body {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--sp-6);
+  }
+
+  .intro__aside {
+    max-width: none;
+    max-height: none;
+  }
+}

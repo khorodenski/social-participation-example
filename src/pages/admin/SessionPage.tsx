@@ -5,6 +5,7 @@ import Spinner from '../../components/Spinner';
 import ExpansionStage from '../../stages/ExpansionStage';
 import GalleryStage from '../../stages/GalleryStage';
 import GroupingStage from '../../stages/GroupingStage';
+import IntroStage from '../../stages/IntroStage';
 import ResultsStage from '../../stages/ResultsStage';
 import SetupStage from '../../stages/SetupStage';
 import VisualizeStage from '../../stages/VisualizeStage';
@@ -35,6 +36,7 @@ import type {
 
 const STAGE_LABELS: Record<Stage, string> = {
   draft: pl.stages.setup,
+  intro: pl.stages.intro,
   voting: pl.stages.voting,
   grouping: pl.stages.grouping,
   results: pl.stages.results,
@@ -83,6 +85,8 @@ function StageView({
           busy={busy}
         />
       );
+    case 'intro':
+      return <IntroStage session={session} />;
     case 'voting':
       return <VotingStage session={session} />;
     case 'grouping':
@@ -228,12 +232,24 @@ export default function SessionPage() {
   // of expanded and visualizing; the ones here are M1's and M3's.
   const actions = [];
 
+  // The lecture opens on the site itself, so "Dalej" from setup shows it, and
+  // voting starts from there. The dirty guard is the same: a draft title must
+  // be saved before it is projected.
   if (session.stage === 'draft') {
+    actions.push({
+      key: 'intro',
+      label: pl.common.next,
+      primary: true,
+      disabled: setupDirty,
+      onSelect: () => void update({ stage: 'intro' }),
+    });
+  }
+
+  if (session.stage === 'intro') {
     actions.push({
       key: 'start',
       label: pl.voting.startVoting,
       primary: true,
-      disabled: setupDirty,
       onSelect: () => void update({ stage: 'voting' }),
     });
   }

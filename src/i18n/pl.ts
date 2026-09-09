@@ -85,6 +85,7 @@ export const pl = {
 
   stages: {
     setup: 'Przygotowanie',
+    intro: 'Miejsce',
     voting: 'Głosowanie',
     grouping: 'Grupuję pomysły…',
     groupingHint: 'To potrwa kilkanaście sekund.',
@@ -140,6 +141,12 @@ export const pl = {
     failed: 'Nie udało się wygenerować obrazu.',
     noPrompt: 'Brak promptu dla tej grupy.',
     badImageType: 'Model zwrócił nieobsługiwany format obrazu.',
+  },
+
+  intro: {
+    notesTitle: 'Notatki o miejscu',
+    noImage: 'Nie dodano zdjęcia miejsca.',
+    morePhotos: 'Więcej zdjęć',
   },
 
   voting: {

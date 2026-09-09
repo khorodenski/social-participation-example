@@ -7,6 +7,8 @@ import { z } from 'zod';
 
 export const STAGES = [
   'draft',
+  /** The projected opener: the site's photograph and notes, before the QR. */
+  'intro',
   'voting',
   'grouping',
   'results',

@@ -76,7 +76,8 @@ export default function IdeaPage() {
   }
 
   if (session.stage !== 'voting') {
-    const message = session.stage === 'draft' ? pl.attendee.notOpenYet : pl.attendee.votingClosed;
+    const notYet = session.stage === 'draft' || session.stage === 'intro';
+    const message = notYet ? pl.attendee.notOpenYet : pl.attendee.votingClosed;
 
     return (
       <main className="page page--narrow attendee">
