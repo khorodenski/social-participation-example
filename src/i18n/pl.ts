@@ -201,6 +201,14 @@ export const pl = {
     encodeFailed: 'Nie udało się przygotować zdjęcia do wysłania.',
   },
 
+  guidance: {
+    title: 'Wytyczne do promptów',
+    hint: 'Twarde ograniczenia dla modelu, który pisze prompty. Obowiązują przy każdym rozwijaniu i przy „Rozwiń ponownie”.',
+    placeholder: 'np. Nie zmieniaj bryły budynku. Pora roku: jesień. Bez samochodów w kadrze.',
+    saved: 'Wytyczne zapisane.',
+    empty: 'Brak wytycznych.',
+  },
+
   groups: {
     otherSynthesis: 'Pomysły, które nie trafiły do żadnej z pozostałych grup.',
     ideaCountOne: 'pomysł',

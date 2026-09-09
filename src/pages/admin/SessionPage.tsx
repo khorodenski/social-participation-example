@@ -55,6 +55,7 @@ interface StageViewProps {
   onRendered: (images: Record<string, GeneratedImage>) => Promise<void>;
   onSaveSetup: (patch: SessionPatch) => Promise<boolean>;
   onSetupDirty: (dirty: boolean) => void;
+  onSaveGuidance: (guidance: string) => Promise<boolean>;
   busy: boolean;
   selectedIds: string[];
   onToggleGroup: (id: string) => void;
@@ -67,6 +68,7 @@ function StageView({
   onRendered,
   onSaveSetup,
   onSetupDirty,
+  onSaveGuidance,
   busy,
   selectedIds,
   onToggleGroup,
@@ -92,11 +94,16 @@ function StageView({
           groups={session.groups}
           selectedIds={selectedIds}
           onToggle={onToggleGroup}
+          guidance={session.promptGuidance}
+          onSaveGuidance={onSaveGuidance}
+          busy={busy}
         />
       );
     case 'expanding':
     case 'expanded':
-      return <ExpansionStage session={session} onExpanded={onExpanded} />;
+      return (
+        <ExpansionStage session={session} onExpanded={onExpanded} onSaveGuidance={onSaveGuidance} />
+      );
     case 'visualizing':
       return <VisualizeStage session={session} onRendered={onRendered} />;
     case 'gallery':
@@ -192,6 +199,11 @@ export default function SessionPage() {
       await update(complete ? { images, stage: 'gallery' } : { images });
     },
     [session, update],
+  );
+
+  const onSaveGuidance = useCallback(
+    (promptGuidance: string) => update({ promptGuidance }),
+    [update],
   );
 
   // Every hook above this line, unconditionally: the early returns below would
@@ -306,6 +318,7 @@ export default function SessionPage() {
         onRendered={onRendered}
         onSaveSetup={update}
         onSetupDirty={setSetupDirty}
+        onSaveGuidance={onSaveGuidance}
         busy={busy}
         selectedIds={selectedIds}
         onToggleGroup={onToggleGroup}

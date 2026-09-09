@@ -1722,3 +1722,71 @@
   color: var(--text);
   cursor: pointer;
 }
+
+/* --------------------------------------------------------- guidance editor */
+
+/* A closed line on a projected screen; a small form when the lecturer opens
+   it. Full width of whichever list it sits under. */
+.guidance {
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  flex: none;
+}
+
+.guidance__summary {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  cursor: pointer;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  list-style: none;
+}
+
+.guidance__summary::-webkit-details-marker {
+  display: none;
+}
+
+.guidance__summary::before {
+  content: '▸';
+  color: var(--text-dim);
+}
+
+.guidance[open] .guidance__summary::before {
+  content: '▾';
+}
+
+.guidance__state {
+  font-weight: var(--fw-body);
+  font-size: var(--fs-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.guidance__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: 0 var(--sp-4) var(--sp-4);
+}
+
+.guidance__hint {
+  font-size: var(--fs-xs);
+  max-width: 65ch;
+}
+
+.guidance__input {
+  font-size: var(--fs-sm);
+  min-height: 5rem;
+}
+
+.guidance__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}

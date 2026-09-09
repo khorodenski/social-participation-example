@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import GuidanceEditor from '../components/GuidanceEditor';
 import { expandSessionGroup } from '../api/expansion';
 import { ModelError } from '../api/google';
 import { pl } from '../i18n/pl';
@@ -22,6 +23,8 @@ interface ExpansionStageProps {
   session: Session;
   /** Persists whatever arrived; SessionPage moves the stage on when all exist. */
   onExpanded: (expansions: Record<string, Expansion>) => Promise<void>;
+  /** The lecturer's constraints, changed here before a "Rozwiń ponownie". */
+  onSaveGuidance: (guidance: string) => Promise<unknown>;
 }
 
 interface Failure {
@@ -221,7 +224,11 @@ function PromptCard({ group, state, onRetry, onSave }: PromptCardProps) {
   );
 }
 
-export default function ExpansionStage({ session, onExpanded }: ExpansionStageProps) {
+export default function ExpansionStage({
+  session,
+  onExpanded,
+  onSaveGuidance,
+}: ExpansionStageProps) {
   const groups = selectedGroups(session);
 
   // Prompts that arrived in this mount, before the write comes back. The
@@ -400,7 +407,9 @@ export default function ExpansionStage({ session, onExpanded }: ExpansionStagePr
         <p className="muted" role="status">
           {pl.expansion.hint}
         </p>
-      ) : null}
+      ) : (
+        <GuidanceEditor value={session.promptGuidance} onSave={onSaveGuidance} />
+      )}
 
       <ul className="expansion__cards">
         {groups.map((group) => (

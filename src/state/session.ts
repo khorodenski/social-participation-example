@@ -98,6 +98,12 @@ export const sessionSchema = z.object({
   createdAt: z.number(),
   stage: stageSchema,
   resources: z.array(resourceSchema).default([]),
+  /**
+   * The lecturer's hard constraints for the prompt-writing model ("keep the
+   * building's massing", "autumn"). Separate from the notes, which describe
+   * the place: this is what the render must and must not do.
+   */
+  promptGuidance: z.string().default(''),
   groups: z.array(groupSchema).default([]),
   selectedGroupIds: z.array(z.string()).default([]),
   expansions: z.record(z.string(), expansionSchema).default({}),

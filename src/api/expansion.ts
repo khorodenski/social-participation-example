@@ -71,5 +71,12 @@ export async function expandSessionGroup(session: Session, group: Group): Promis
   if (!apiKey) throw new ModelError(pl.settings.keyMissing, false);
 
   const resourceImages = await loadResourceImages(session.resources);
-  return expandGroup(apiKey, group, session.resources, resourceImages);
+  return expandGroup(
+    apiKey,
+    group,
+    session.resources,
+    resourceImages,
+    undefined,
+    session.promptGuidance,
+  );
 }

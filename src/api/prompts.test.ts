@@ -272,3 +272,21 @@ describe('expansionResponseSchema', () => {
     expect(expansionResponseSchema.safeParse({ prompt: '' }).success).toBe(false);
   });
 });
+
+describe('buildExpansionContents — guidance', () => {
+  it('puts the guidelines between the theme and the materials', () => {
+    const parts = buildExpansionContents(group, [], {}, 'Pora roku: jesień.\nBez samochodów.');
+
+    expect(parts).toHaveLength(3);
+    expect(text(parts[1]!)).toContain('WYTYCZNE PROWADZĄCEGO');
+    expect(text(parts[1]!)).toContain('Pora roku: jesień.\nBez samochodów.');
+    expect(text(parts[2]!)).toContain('MATERIAŁY O MIEJSCU');
+  });
+
+  it('sends no guidance block for whitespace', () => {
+    const parts = buildExpansionContents(group, [], {}, '   \n ');
+
+    expect(parts).toHaveLength(2);
+    expect(parts.some((part) => text(part).includes('WYTYCZNE'))).toBe(false);
+  });
+});

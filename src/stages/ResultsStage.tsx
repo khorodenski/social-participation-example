@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import GuidanceEditor from '../components/GuidanceEditor';
 import { listIdeas } from '../api/client';
 import { ideaCountLabel, pl } from '../i18n/pl';
 import { polishMessage } from '../state/errors';
@@ -31,6 +32,10 @@ interface ResultsStageProps {
   groups: Group[];
   selectedIds: string[];
   onToggle: (id: string) => void;
+  /** The lecturer's constraints for the expansion that "Dalej" starts. */
+  guidance: string;
+  onSaveGuidance: (guidance: string) => Promise<unknown>;
+  busy?: boolean;
 }
 
 interface GroupCardProps {
@@ -138,6 +143,9 @@ export default function ResultsStage({
   groups,
   selectedIds,
   onToggle,
+  guidance,
+  onSaveGuidance,
+  busy,
 }: ResultsStageProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [shown, setShown] = useState<Group | null>(null);
@@ -266,6 +274,10 @@ export default function ResultsStage({
             <GroupCard group={other} selected={false} onOpen={() => openSynthesis(other)} />
           </ul>
         ) : null}
+
+        {/* Last, under the list: it is for the lecturer, not the room, and it
+            has to be set before "Dalej" starts the expansion. */}
+        <GuidanceEditor value={guidance} onSave={onSaveGuidance} busy={busy} />
       </div>
 
       {/* The reset zeroes every margin, which also strips the UA stylesheet's
