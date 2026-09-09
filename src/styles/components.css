@@ -200,6 +200,40 @@
   color: var(--text-muted);
 }
 
+/* "Cofnij do…": a drop-up, because the bar sits at the bottom of the screen. */
+.control-bar__menu {
+  position: relative;
+}
+
+.control-bar__menu-button {
+  list-style: none;
+  display: inline-block;
+}
+
+.control-bar__menu-button::-webkit-details-marker {
+  display: none;
+}
+
+.control-bar__menu-list {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + var(--sp-2));
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--sp-1);
+  min-width: 12rem;
+  padding: var(--sp-2);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  z-index: 20;
+}
+
+.control-bar__menu-list .btn {
+  text-align: left;
+}
+
 /* ------------------------------------------------------------- setup stage */
 
 /* Not a projected hero but a form and a list, so it opts out of the centring

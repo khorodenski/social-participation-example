@@ -13,6 +13,7 @@ import VotingStage from '../../stages/VotingStage';
 import { pl } from '../../i18n/pl';
 import { allExpansionsReady } from '../../state/expansion';
 import { allImagesReady } from '../../state/visualize';
+import { availableTargets, previousStage } from '../../state/rewind';
 import {
   initialSelection,
   orderSelection,
@@ -175,13 +176,20 @@ export default function SessionPage() {
 
       const expansions = { ...session.expansions, ...arrived };
 
+      // A new prompt makes the picture rendered from the old one stale, so it
+      // goes: the visualize screen will render that group again, and only
+      // that one. Matters after "Wstecz" from the gallery, where every group
+      // already has a picture and nothing else would trigger a new one.
+      const images = { ...session.images };
+      for (const id of Object.keys(arrived)) delete images[id];
+
       // Only ever advance from the expansion screens. A "Rozwiń ponownie" that
       // lands after the lecturer has already moved on would otherwise drag the
       // projector back from `visualizing` to `expanded`.
       const onExpansionScreen = session.stage === 'expanding' || session.stage === 'expanded';
       const complete = onExpansionScreen && allExpansionsReady({ ...session, expansions });
 
-      await update(complete ? { expansions, stage: 'expanded' } : { expansions });
+      await update(complete ? { expansions, images, stage: 'expanded' } : { expansions, images });
     },
     [session, update],
   );
@@ -271,16 +279,19 @@ export default function SessionPage() {
     // F-6.4 — exactly the required number, or the button stays dead. The
     // selection is written in podium order alongside the stage change, so
     // expansion never opens on a stage with nothing chosen.
+    // After a "Wstecz" the prompts may all still be there, and the expansion
+    // screen only ever advances on a write of its own. So the stage is decided
+    // here: straight to `expanded` when nothing is missing.
     actions.push({
       key: 'next',
       label: pl.common.next,
       primary: true,
       disabled: required === 0 || selectedIds.length !== required,
-      onSelect: () =>
-        void update({
-          selectedGroupIds: orderSelection(groups, selectedIds),
-          stage: 'expanding',
-        }),
+      onSelect: () => {
+        const selectedGroupIds = orderSelection(groups, selectedIds);
+        const ready = allExpansionsReady({ ...session, selectedGroupIds });
+        void update({ selectedGroupIds, stage: ready ? 'expanded' : 'expanding' });
+      },
     });
 
     // F-5.4 — rehearsal control: re-running overwrites the previous groups.
@@ -315,15 +326,28 @@ export default function SessionPage() {
     });
   }
 
-  if (session.stage !== 'draft') {
+  // "Wstecz" — one screen back, nothing lost. Hidden where there is no back.
+  const back = previousStage(session.stage);
+  if (back !== null) {
     actions.push({
-      key: 'reset',
-      label: pl.admin.reset,
-      danger: true,
-      confirm: true,
-      onSelect: () => void reset(),
+      key: 'back',
+      label: pl.admin.back,
+      onSelect: () => void update({ stage: back }),
     });
   }
+
+  // "Cofnij do…" — a checkpoint, and it throws away what came after it, so
+  // every item asks once.
+  const menu = {
+    label: pl.admin.rewindTo,
+    items: availableTargets(session.stage).map((target) => ({
+      key: `rewind:${target}`,
+      label: pl.admin.rewindTargets[target],
+      danger: true,
+      confirm: true,
+      onSelect: () => void reset(target),
+    })),
+  };
 
   return (
     <main className="page page--session">
@@ -342,6 +366,7 @@ export default function SessionPage() {
       <ControlBar
         stageLabel={STAGE_LABELS[session.stage]}
         actions={actions}
+        menu={menu}
         busy={busy}
         error={error}
       />

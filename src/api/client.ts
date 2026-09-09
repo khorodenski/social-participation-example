@@ -12,6 +12,7 @@ import {
 import { ideaSchema } from '../state/session';
 import { ASSET_MAX_BYTES, isAssetKey, normalizeContentType } from '../state/assets';
 import { LocalizedError } from '../state/errors';
+import type { ResetTarget } from '../state/rewind';
 import { z } from 'zod';
 import { pl } from '../i18n/pl';
 
@@ -132,8 +133,12 @@ export function deleteSession(id: string): Promise<{ ok: boolean }> {
   );
 }
 
-export function resetSession(id: string): Promise<Session> {
-  return request(`/sessions/${encodeURIComponent(id)}/reset`, { method: 'POST' }, sessionSchema);
+export function resetSession(id: string, to: ResetTarget = 'draft'): Promise<Session> {
+  return request(
+    `/sessions/${encodeURIComponent(id)}/reset`,
+    { method: 'POST', body: JSON.stringify({ to }) },
+    sessionSchema,
+  );
 }
 
 export function getPublicSession(id: string): Promise<PublicSession> {

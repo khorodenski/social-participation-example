@@ -13,6 +13,7 @@ import {
 import { json, jsonError } from './_http';
 import { pl } from '../../src/i18n/pl';
 import { publicImage } from '../../src/state/resources';
+import { applyReset, blobsToClear, resetRequestSchema } from '../../src/state/rewind';
 import {
   createSessionSchema,
   sessionIndexSchema,
@@ -106,20 +107,19 @@ export default async (req: Request, _context: Context): Promise<Response> => {
       });
     }
 
+    // "Cofnij do…". An empty body is the original full reset to setup.
     if (tail === 'reset') {
       if (req.method !== 'POST') return jsonError(pl.errors.methodNotAllowed, 405);
 
-      for (const key of await listKeys(ideasPrefix(id))) await deleteKey(key);
-      for (const key of await listKeys(imagesPrefix(id))) await deleteKey(key);
+      const body: unknown = await req.json().catch(() => ({}));
+      const request = resetRequestSchema.safeParse(body ?? {});
+      if (!request.success) return jsonError(pl.errors.invalidBody, 400);
 
-      const reset: Session = {
-        ...session,
-        stage: 'draft',
-        groups: [],
-        selectedGroupIds: [],
-        expansions: {},
-        images: {},
-      };
+      const clear = blobsToClear(request.data.to);
+      if (clear.ideas) for (const key of await listKeys(ideasPrefix(id))) await deleteKey(key);
+      if (clear.images) for (const key of await listKeys(imagesPrefix(id))) await deleteKey(key);
+
+      const reset = applyReset(session, request.data.to);
       await writeJson(sessionKey(id), reset);
       return json(reset);
     }
