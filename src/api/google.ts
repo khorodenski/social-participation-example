@@ -343,9 +343,11 @@ export async function expandGroup(
   resourceImages: Record<string, string>,
   /** Overridable for the same reason as `groupIdeas`: benchmarks and rehearsal day. */
   model: string = TEXT_MODEL,
+  /** The lecturer's hard constraints (`session.promptGuidance`). */
+  guidance = '',
 ): Promise<string> {
   const contents = [
-    { role: 'user', parts: buildExpansionContents(group, resources, resourceImages) },
+    { role: 'user', parts: buildExpansionContents(group, resources, resourceImages, guidance) },
   ];
 
   const response = await generateJson(

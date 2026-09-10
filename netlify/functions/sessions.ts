@@ -6,11 +6,14 @@ import {
   imagesPrefix,
   listKeys,
   readJson,
+  resourcesPrefix,
   sessionKey,
   writeJson,
 } from './_blobs';
 import { json, jsonError } from './_http';
 import { pl } from '../../src/i18n/pl';
+import { publicImage } from '../../src/state/resources';
+import { applyReset, blobsToClear, resetRequestSchema } from '../../src/state/rewind';
 import {
   createSessionSchema,
   sessionIndexSchema,
@@ -96,28 +99,49 @@ export default async (req: Request, _context: Context): Promise<Response> => {
 
     if (tail === 'public') {
       if (req.method !== 'GET') return jsonError(pl.errors.methodNotAllowed, 405);
-      return json({ title: session.title, intro: session.intro, stage: session.stage });
+      return json({
+        title: session.title,
+        intro: session.intro,
+        stage: session.stage,
+        image: publicImage(session.resources),
+      });
     }
 
+    // "Cofnij do…". An empty body is the original full reset to setup.
     if (tail === 'reset') {
       if (req.method !== 'POST') return jsonError(pl.errors.methodNotAllowed, 405);
 
-      for (const key of await listKeys(ideasPrefix(id))) await deleteKey(key);
-      for (const key of await listKeys(imagesPrefix(id))) await deleteKey(key);
+      const body: unknown = await req.json().catch(() => ({}));
+      const request = resetRequestSchema.safeParse(body ?? {});
+      if (!request.success) return jsonError(pl.errors.invalidBody, 400);
 
-      const reset: Session = {
-        ...session,
-        stage: 'draft',
-        groups: [],
-        selectedGroupIds: [],
-        expansions: {},
-        images: {},
-      };
+      const clear = blobsToClear(request.data.to);
+      if (clear.ideas) for (const key of await listKeys(ideasPrefix(id))) await deleteKey(key);
+      if (clear.images) for (const key of await listKeys(imagesPrefix(id))) await deleteKey(key);
+
+      const reset = applyReset(session, request.data.to);
       await writeJson(sessionKey(id), reset);
       return json(reset);
     }
 
     if (req.method === 'GET') return json(session);
+
+    // Everything under the session's prefix goes, then the document, then the
+    // index entry. In that order: an interrupted delete leaves a session that
+    // still opens and can be deleted again, never an index entry that 404s.
+    if (req.method === 'DELETE') {
+      for (const prefix of [ideasPrefix(id), imagesPrefix(id), resourcesPrefix(id)]) {
+        for (const key of await listKeys(prefix)) await deleteKey(key);
+      }
+      await deleteKey(sessionKey(id));
+
+      const index = await readIndex();
+      await writeJson(
+        SESSION_INDEX_KEY,
+        index.filter((entry) => entry.id !== id),
+      );
+      return json({ ok: true });
+    }
 
     if (req.method === 'PATCH') {
       const body: unknown = await req.json().catch(() => null);

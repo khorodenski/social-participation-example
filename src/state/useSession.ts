@@ -8,6 +8,7 @@ import {
 } from '../api/client';
 import { pl } from '../i18n/pl';
 import { polishMessage } from './errors';
+import type { ResetTarget } from './rewind';
 import type { PublicSession, Session, SessionPatch } from './session';
 
 /**
@@ -31,7 +32,7 @@ interface UseSession {
    * other caller ignores it and reads `error` from the control bar as before.
    */
   update: (patch: SessionPatch) => Promise<boolean>;
-  reset: () => Promise<boolean>;
+  reset: (to?: ResetTarget) => Promise<boolean>;
 }
 
 /**
@@ -88,10 +89,13 @@ export function useSession(id: string | undefined): UseSession {
     [id, run],
   );
 
-  const reset = useCallback(async () => {
-    if (!id) return false;
-    return run(() => resetSession(id));
-  }, [id, run]);
+  const reset = useCallback(
+    async (to: ResetTarget = 'draft') => {
+      if (!id) return false;
+      return run(() => resetSession(id, to));
+    },
+    [id, run],
+  );
 
   return { session, loading, error, busy, reload, update, reset };
 }

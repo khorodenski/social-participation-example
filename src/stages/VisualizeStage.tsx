@@ -5,6 +5,7 @@ import { generateSessionImage } from '../api/visualize';
 import { pl } from '../i18n/pl';
 import { polishMessage } from '../state/errors';
 import { selectedGroups } from '../state/expansion';
+import { downloadFileName } from '../state/gallery';
 import { generatedImageSrc, missingImages } from '../state/visualize';
 import type { GeneratedImage, Group, Session } from '../state/session';
 
@@ -46,10 +47,11 @@ type CardState =
 interface ImageCardProps {
   group: Group;
   state: CardState;
+  sessionTitle: string;
   onRetry: () => void;
 }
 
-function ImageCard({ group, state, onRetry }: ImageCardProps) {
+function ImageCard({ group, state, sessionTitle, onRetry }: ImageCardProps) {
   return (
     <li className={`image-card is-${state.status}`}>
       <div className="image-card__frame">
@@ -94,10 +96,19 @@ function ImageCard({ group, state, onRetry }: ImageCardProps) {
                 {state.failure.message}
               </p>
             ) : null}
-            {/* F-8.3 — per card. There is deliberately no "regenerate all". */}
-            <button type="button" className="btn image-card__again" onClick={onRetry}>
-              {pl.common.regenerate}
-            </button>
+            <span className="image-card__actions">
+              <a
+                className="btn image-card__again"
+                href={assetUrl(state.image.imageKey)}
+                download={downloadFileName(sessionTitle, group.label, state.image.imageKey)}
+              >
+                {pl.gallery.download}
+              </a>
+              {/* F-8.3 — per card. There is deliberately no "regenerate all". */}
+              <button type="button" className="btn image-card__again" onClick={onRetry}>
+                {pl.common.regenerate}
+              </button>
+            </span>
           </>
         ) : null}
       </div>
@@ -241,6 +252,7 @@ export default function VisualizeStage({ session, onRendered }: VisualizeStagePr
             key={group.id}
             group={group}
             state={stateFor(group)}
+            sessionTitle={session.title}
             onRetry={() => retry(group)}
           />
         ))}

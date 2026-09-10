@@ -35,3 +35,24 @@ export function stepIndex(current: number, length: number, delta: number): numbe
   if (length <= 0) return 0;
   return (((current + delta) % length) + length) % length;
 }
+
+/**
+ * The file name a "Pobierz" link hands the browser.
+ *
+ * Built from the session title and the group label rather than the blob key,
+ * so three downloads from one lecture do not all land as `g1.jpg`. Polish
+ * letters are kept: every current browser and file system takes them, and
+ * "Plac przed dworcem" is what the lecturer will look for afterwards. Only the
+ * characters that are illegal in a file name on Windows are replaced.
+ */
+export function downloadFileName(title: string, label: string, imageKey: string): string {
+  const extension = imageKey.includes('.') ? imageKey.slice(imageKey.lastIndexOf('.')) : '';
+  const clean = (text: string) =>
+    Array.from(text)
+      .map((char) => (char.charCodeAt(0) < 32 || '\\/:*?"<>|'.includes(char) ? ' ' : char))
+      .join('')
+      .replace(/\s+/g, ' ')
+      .trim();
+  const stem = [clean(title), clean(label)].filter((part) => part.length > 0).join(' - ');
+  return `${stem.length > 0 ? stem : 'obraz'}${extension}`;
+}

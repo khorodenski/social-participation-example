@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import GearSettingsDialog from './GearSettingsDialog';
 import Logo from './Logo';
 import { pl } from '../i18n/pl';
@@ -23,9 +24,17 @@ interface Action {
   disabled?: boolean;
 }
 
+/** A drop-up of actions behind one button ("Cofnij do…"). */
+interface Menu {
+  label: string;
+  items: Action[];
+}
+
 interface ControlBarProps {
   stageLabel: string;
   actions: Action[];
+  /** Rendered after the actions; hidden when it has no items. */
+  menu?: Menu;
   busy?: boolean;
   error?: string | null;
 }
@@ -33,8 +42,9 @@ interface ControlBarProps {
 /** How long a pending confirmation stays armed before returning to normal. */
 const CONFIRM_TIMEOUT_MS = 5000;
 
-export default function ControlBar({ stageLabel, actions, busy, error }: ControlBarProps) {
+export default function ControlBar({ stageLabel, actions, menu, busy, error }: ControlBarProps) {
   const [pending, setPending] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
     if (pending === null) return;
@@ -42,40 +52,66 @@ export default function ControlBar({ stageLabel, actions, busy, error }: Control
     return () => window.clearTimeout(timer);
   }, [pending]);
 
+  // The menu closes on a click anywhere else, the way a menu is expected to.
+  useEffect(() => {
+    const onPointerDown = (event: PointerEvent) => {
+      const el = menuRef.current;
+      if (el?.open && event.target instanceof Node && !el.contains(event.target)) el.open = false;
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, []);
+
   function activate(action: Action) {
     if (action.confirm && pending !== action.key) {
       setPending(action.key);
       return;
     }
     setPending(null);
+    if (menuRef.current) menuRef.current.open = false;
     action.onSelect();
+  }
+
+  function button(action: Action) {
+    const arming = pending === action.key;
+    const classes = ['btn'];
+    if (action.primary && !arming) classes.push('btn--primary');
+    if (action.danger || arming) classes.push('btn--danger');
+
+    return (
+      <button
+        key={action.key}
+        type="button"
+        className={classes.join(' ')}
+        disabled={action.disabled || busy}
+        onClick={() => activate(action)}
+      >
+        {arming ? pl.common.confirm : action.label}
+      </button>
+    );
   }
 
   return (
     <div className="control-bar">
-      <Logo className="control-bar__logo" />
+      {/* The way back to the session list from any stage. No confirmation:
+          nothing is lost, the session stays in whatever stage it is in. */}
+      <Link to="/admin" className="control-bar__home" title={pl.admin.backToList}>
+        <Logo className="control-bar__logo" />
+      </Link>
       <span className="control-bar__rule" aria-hidden="true" />
       <span className="control-bar__stage">{stageLabel}</span>
 
       <div className="control-bar__actions">
-        {actions.map((action) => {
-          const arming = pending === action.key;
-          const classes = ['btn'];
-          if (action.primary && !arming) classes.push('btn--primary');
-          if (action.danger || arming) classes.push('btn--danger');
+        {actions.map(button)}
 
-          return (
-            <button
-              key={action.key}
-              type="button"
-              className={classes.join(' ')}
-              disabled={action.disabled || busy}
-              onClick={() => activate(action)}
-            >
-              {arming ? pl.common.confirm : action.label}
-            </button>
-          );
-        })}
+        {menu && menu.items.length > 0 ? (
+          <details className="control-bar__menu" ref={menuRef}>
+            <summary className="btn control-bar__menu-button">{menu.label}</summary>
+            <div className="control-bar__menu-list" role="menu">
+              {menu.items.map(button)}
+            </div>
+          </details>
+        ) : null}
       </div>
 
       {busy ? (

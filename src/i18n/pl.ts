@@ -70,6 +70,14 @@ export const pl = {
     introLabel: 'Wprowadzenie (opcjonalne)',
     open: 'Otwórz',
     reset: 'Resetuj sesję',
+    back: 'Wstecz',
+    rewindTo: 'Cofnij do…',
+    rewindTargets: {
+      draft: 'Ustawienia sesji',
+      results: 'Wybór grup',
+      expanded: 'Prompty',
+      visualizing: 'Obrazy',
+    },
     noSessions: 'Nie ma jeszcze żadnej sesji.',
     placeholder: 'Panel prowadzącego',
     create: 'Utwórz sesję',
@@ -77,10 +85,15 @@ export const pl = {
     titlePlaceholder: 'np. Plac przed dworcem',
     introPlaceholder: 'np. Jak urządzić to miejsce?',
     createdAt: 'Utworzono',
+    backToList: 'Wróć do listy sesji',
+    delete: 'Usuń sesję',
+    deleteConfirm: 'Usunąć? Tej operacji nie można cofnąć.',
+    deleting: 'Usuwam…',
   },
 
   stages: {
     setup: 'Przygotowanie',
+    intro: 'Miejsce',
     voting: 'Głosowanie',
     grouping: 'Grupuję pomysły…',
     groupingHint: 'To potrwa kilkanaście sekund.',
@@ -113,6 +126,12 @@ export const pl = {
     failed: 'Nie udało się napisać promptu.',
     noSelection: 'Nie wybrano żadnej grupy.',
     ready: 'Gotowe',
+    edit: 'Edytuj',
+    edited: 'Prompt zmieniony ręcznie',
+    copy: 'Kopiuj prompt',
+    copied: 'Skopiowano',
+    copyFailed: 'Nie udało się skopiować.',
+    reExpandOverwrites: 'To nadpisze ręczne zmiany. Czy na pewno?',
   },
 
   gallery: {
@@ -121,6 +140,7 @@ export const pl = {
     next: 'Następny obraz',
     noImages: 'Nie ma jeszcze żadnego obrazu.',
     hint: 'Kliknij obraz, aby otworzyć go na pełnym ekranie.',
+    download: 'Pobierz',
   },
 
   visualize: {
@@ -129,6 +149,12 @@ export const pl = {
     failed: 'Nie udało się wygenerować obrazu.',
     noPrompt: 'Brak promptu dla tej grupy.',
     badImageType: 'Model zwrócił nieobsługiwany format obrazu.',
+  },
+
+  intro: {
+    notesTitle: 'Notatki o miejscu',
+    noImage: 'Nie dodano zdjęcia miejsca.',
+    morePhotos: 'Więcej zdjęć',
   },
 
   voting: {
@@ -188,6 +214,14 @@ export const pl = {
     badResourceId: 'Nieprawidłowy identyfikator materiału.',
     decodeFailed: 'Nie udało się odczytać tego pliku jako zdjęcia.',
     encodeFailed: 'Nie udało się przygotować zdjęcia do wysłania.',
+  },
+
+  guidance: {
+    title: 'Wytyczne do promptów',
+    hint: 'Twarde ograniczenia dla modelu, który pisze prompty. Obowiązują przy każdym rozwijaniu i przy „Rozwiń ponownie”.',
+    placeholder: 'np. Nie zmieniaj bryły budynku. Pora roku: jesień. Bez samochodów w kadrze.',
+    saved: 'Wytyczne zapisane.',
+    empty: 'Brak wytycznych.',
   },
 
   groups: {

@@ -1,4 +1,4 @@
-import type { Resource } from './session';
+import type { PublicImage, Resource } from './session';
 
 /**
  * F-2.1/F-2.2 — the rules behind the resource editor, kept pure so they are
@@ -126,4 +126,21 @@ export function sameResources(a: readonly Resource[], b: readonly Resource[]): b
 export function referenceCount(resources: readonly Resource[]): number {
   return resources.filter((resource) => resource.type === 'image' && resource.useAsReference)
     .length;
+}
+
+/** The first photograph of the session, if there is one with a stored copy. */
+export function firstImage(resources: readonly Resource[]): Resource | undefined {
+  return resources.find((resource) => resource.type === 'image' && Boolean(resource.imageKey));
+}
+
+/**
+ * What the public endpoint says about that photograph. The preview copy when
+ * it exists, because that is the one a phone should download; the reference
+ * copy is only there for a session written before previews were stored.
+ */
+export function publicImage(resources: readonly Resource[]): PublicImage | null {
+  const image = firstImage(resources);
+  if (!image) return null;
+  const key = image.previewKey ?? image.imageKey;
+  return key ? { key, description: image.description } : null;
 }

@@ -158,6 +158,17 @@
   gap: var(--sp-4);
 }
 
+.control-bar__home {
+  display: flex;
+  flex: none;
+  line-height: 0;
+}
+
+.control-bar__home:hover,
+.control-bar__home:focus-visible {
+  opacity: 0.7;
+}
+
 .control-bar__logo {
   height: 1.5rem;
   width: auto;
@@ -187,6 +198,40 @@
 .control-bar__status {
   font-size: var(--fs-xs);
   color: var(--text-muted);
+}
+
+/* "Cofnij do…": a drop-up, because the bar sits at the bottom of the screen. */
+.control-bar__menu {
+  position: relative;
+}
+
+.control-bar__menu-button {
+  list-style: none;
+  display: inline-block;
+}
+
+.control-bar__menu-button::-webkit-details-marker {
+  display: none;
+}
+
+.control-bar__menu-list {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + var(--sp-2));
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--sp-1);
+  min-width: 12rem;
+  padding: var(--sp-2);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  z-index: 20;
+}
+
+.control-bar__menu-list .btn {
+  text-align: left;
 }
 
 /* ------------------------------------------------------------- setup stage */
@@ -446,10 +491,38 @@
   color: var(--text-muted);
 }
 
+/* The photograph sits level with the QR code: the same height, so the row
+   reads as one line of three things — place, code, count. */
+.voting__photo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  max-width: min(40vw, 640px);
+}
+
+.voting__photo > img {
+  height: min(42vh, 436px);
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+  background: var(--bg-elevated);
+}
+
+.voting__photo > figcaption {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
 /* Stack on a narrow projector or a laptop screen in portrait. */
 @media (max-width: 900px) {
   .voting__body {
     gap: var(--sp-8);
+  }
+
+  .voting__photo {
+    max-width: 100%;
   }
 }
 
@@ -490,6 +563,24 @@
 .attendee .textarea {
   font-size: var(--fs-md);
   min-height: 9rem;
+}
+
+.attendee__photo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.attendee__photo > img {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: var(--bg-elevated);
+}
+
+.attendee__photo > figcaption {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
 }
 
 .attendee__counter {
@@ -550,6 +641,22 @@
   text-decoration: none;
   color: var(--text);
   flex: none;
+}
+
+.session-list__actions {
+  display: flex;
+  gap: var(--sp-2);
+  flex: none;
+}
+
+/* A quiet X until it is armed, then it says in words what it is about to do. */
+.session-list__delete {
+  min-width: 2.5rem;
+  color: var(--text-dim);
+}
+
+.session-list__delete.is-armed {
+  color: var(--danger);
 }
 
 @media (max-width: 520px) {
@@ -740,8 +847,29 @@
   font-size: var(--fs-xs);
 }
 
-.prompt-card__again {
+.prompt-card__actions {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
   align-self: flex-start;
+}
+
+/* Quiet, next to the heading: the room should not read it as an error. */
+.prompt-card__edited {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: var(--fw-body);
+}
+
+/* The same box as the read-only prompt, so switching to edit does not move
+   the card. Resizable only vertically: the cards share a row. */
+.prompt-card__editor {
+  resize: vertical;
+  min-height: 8rem;
+  padding: var(--sp-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-inset);
 }
 
 /* The same slow breath as the grouping stage: this one sits on a projector for
@@ -1301,10 +1429,18 @@
 }
 
 /* Small and quiet: the picture is the thing being looked at (N-2). */
+.image-card__actions {
+  display: flex;
+  gap: var(--sp-2);
+  flex: none;
+}
+
 .image-card__again {
   font-size: var(--fs-xs);
   padding: var(--sp-1) var(--sp-3);
   flex: none;
+  text-decoration: none;
+  color: inherit;
 }
 
 .image-card__note {
@@ -1375,6 +1511,22 @@
   font-weight: var(--fw-bold);
   text-align: center;
   background: var(--bg-elevated);
+}
+
+.gallery__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+/* Small and quiet under the picture: the room looks at the image, the
+   lecturer finds the link. */
+.gallery__download {
+  font-size: var(--fs-xs);
+  padding: var(--sp-1) var(--sp-3);
+  text-decoration: none;
+  color: inherit;
 }
 
 .gallery__hint {
@@ -1603,4 +1755,192 @@
   font-size: var(--fs-sm);
   color: var(--text);
   cursor: pointer;
+}
+
+/* --------------------------------------------------------- guidance editor */
+
+/* A closed line on a projected screen; a small form when the lecturer opens
+   it. Full width of whichever list it sits under. */
+.guidance {
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  flex: none;
+}
+
+.guidance__summary {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  cursor: pointer;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  list-style: none;
+}
+
+.guidance__summary::-webkit-details-marker {
+  display: none;
+}
+
+.guidance__summary::before {
+  content: '▸';
+  color: var(--text-dim);
+}
+
+.guidance[open] .guidance__summary::before {
+  content: '▾';
+}
+
+.guidance__state {
+  font-weight: var(--fw-body);
+  font-size: var(--fs-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.guidance__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: 0 var(--sp-4) var(--sp-4);
+}
+
+.guidance__hint {
+  font-size: var(--fs-xs);
+  max-width: 65ch;
+}
+
+.guidance__input {
+  font-size: var(--fs-sm);
+  min-height: 5rem;
+}
+
+.guidance__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+/* ------------------------------------------------------------- intro stage */
+
+/* The opener: photograph large on the left, notes beside it. A hero like the
+   voting stage, so it keeps the centring of `.page--session > section`. */
+.intro {
+  width: 100%;
+}
+
+.intro__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.intro__body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--sp-12);
+  width: 100%;
+  max-width: 88rem;
+}
+
+.intro__photo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  flex: 1 1 60%;
+  min-width: 0;
+}
+
+.intro__photo > img {
+  max-height: 62vh;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+  background: var(--bg-elevated);
+}
+
+.intro__photo > figcaption {
+  font-size: var(--fs-md);
+  color: var(--text-muted);
+}
+
+.intro__empty {
+  flex: 1 1 60%;
+}
+
+.intro__aside {
+  flex: 1 1 32%;
+  min-width: 18rem;
+  max-width: 34rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  text-align: left;
+  max-height: 62vh;
+  overflow-y: auto;
+}
+
+.intro__heading {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: var(--sp-3);
+}
+
+.intro__notes ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.intro__notes li {
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--bg-elevated);
+  font-size: var(--fs-md);
+  line-height: 1.5;
+}
+
+.intro__notes strong {
+  display: block;
+  margin-bottom: var(--sp-1);
+}
+
+.intro__more ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  gap: var(--sp-2);
+}
+
+.intro__more img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+  background: var(--bg-elevated);
+}
+
+@media (max-width: 900px) {
+  .intro__body {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--sp-6);
+  }
+
+  .intro__aside {
+    max-width: none;
+    max-height: none;
+  }
 }

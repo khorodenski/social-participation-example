@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Logo from '../../components/Logo';
 import Spinner from '../../components/Spinner';
-import { submitIdea } from '../../api/client';
+import { assetUrl, submitIdea } from '../../api/client';
 import { pl } from '../../i18n/pl';
 import { polishMessage } from '../../state/errors';
 import { IDEA_MAX_LENGTH, IDEA_MIN_LENGTH } from '../../state/session';
@@ -76,7 +76,8 @@ export default function IdeaPage() {
   }
 
   if (session.stage !== 'voting') {
-    const message = session.stage === 'draft' ? pl.attendee.notOpenYet : pl.attendee.votingClosed;
+    const notYet = session.stage === 'draft' || session.stage === 'intro';
+    const message = notYet ? pl.attendee.notOpenYet : pl.attendee.votingClosed;
 
     return (
       <main className="page page--narrow attendee">
@@ -96,6 +97,15 @@ export default function IdeaPage() {
         <h1 className="attendee__title">{session.title}</h1>
         {session.intro ? <p className="muted">{session.intro}</p> : null}
       </header>
+
+      {/* The place they are writing about. The preview copy: small enough
+          for hall wi-fi, sharp enough for a phone. */}
+      {session.image ? (
+        <figure className="attendee__photo">
+          <img src={assetUrl(session.image.key)} alt={session.image.description || session.title} />
+          {session.image.description ? <figcaption>{session.image.description}</figcaption> : null}
+        </figure>
+      ) : null}
 
       <form
         className="field"

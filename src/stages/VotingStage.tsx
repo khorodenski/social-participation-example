@@ -1,5 +1,7 @@
 import { QRCodeSVG } from 'qrcode.react';
+import { assetUrl } from '../api/client';
 import { pl } from '../i18n/pl';
+import { firstImage } from '../state/resources';
 import { attendeeUrl, useIdeaCount } from '../state/useSession';
 import type { Session } from '../state/session';
 
@@ -12,6 +14,10 @@ export default function VotingStage({ session }: { session: Session }) {
   const url = attendeeUrl(window.location.origin, session.id);
   const count = useIdeaCount(session.id, true);
 
+  // The room's point of reference while they type: the same photograph the
+  // phones show. Full-size here, this is a projector.
+  const photo = firstImage(session.resources);
+
   return (
     <section className="voting">
       <header className="voting__head">
@@ -20,6 +26,13 @@ export default function VotingStage({ session }: { session: Session }) {
       </header>
 
       <div className="voting__body">
+        {photo?.imageKey ? (
+          <figure className="voting__photo">
+            <img src={assetUrl(photo.imageKey)} alt={photo.description || session.title} />
+            {photo.description ? <figcaption>{photo.description}</figcaption> : null}
+          </figure>
+        ) : null}
+
         <div className="voting__qr">
           {/* White quiet zone: projectors wash out a code drawn on dark ground. */}
           <QRCodeSVG value={url} size={420} level="M" marginSize={2} />

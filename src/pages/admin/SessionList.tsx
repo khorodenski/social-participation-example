@@ -3,15 +3,18 @@ import { Link, useNavigate } from 'react-router-dom';
 import GearSettingsDialog from '../../components/GearSettingsDialog';
 import Logo from '../../components/Logo';
 import Spinner from '../../components/Spinner';
-import { createSession, listSessions } from '../../api/client';
+import { createSession, deleteSession, listSessions } from '../../api/client';
 import { pl } from '../../i18n/pl';
 import { polishMessage } from '../../state/errors';
 import type { SessionSummary } from '../../state/session';
 
+/** How long an armed "Usunąć?" stays before the X goes back to normal. */
+const CONFIRM_TIMEOUT_MS = 5000;
+
 /**
  * F-1.3 — the lecturer's way in. Several sessions exist so a rehearsal and the
- * real run never collide, so this lists them and creates new ones. No deletion:
- * "reset to draft" from the session screen is enough.
+ * real run never collide, so this lists them, creates new ones and deletes
+ * old ones. Deleting asks once, the same two-click way as the control bar.
  */
 export default function SessionList() {
   const navigate = useNavigate();
@@ -19,6 +22,34 @@ export default function SessionList() {
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [armed, setArmed] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (armed === null) return;
+    const timer = window.setTimeout(() => setArmed(null), CONFIRM_TIMEOUT_MS);
+    return () => window.clearTimeout(timer);
+  }, [armed]);
+
+  async function remove(id: string) {
+    if (armed !== id) {
+      setArmed(id);
+      return;
+    }
+    setArmed(null);
+    setDeleting(id);
+    setError(null);
+
+    try {
+      await deleteSession(id);
+      setSessions((current) => current.filter((session) => session.id !== id));
+    } catch (err) {
+      setError(polishMessage(err, pl.errors.network));
+    } finally {
+      setDeleting(null);
+    }
+  }
 
   const [title, setTitle] = useState('');
   const [intro, setIntro] = useState('');
@@ -137,9 +168,29 @@ export default function SessionList() {
                   {new Date(session.createdAt).toLocaleString('pl-PL')}
                 </span>
               </div>
-              <Link className="btn" to={`/admin/${session.id}`}>
-                {pl.admin.open}
-              </Link>
+              <span className="session-list__actions">
+                <Link className="btn" to={`/admin/${session.id}`}>
+                  {pl.admin.open}
+                </Link>
+                <button
+                  type="button"
+                  className={
+                    armed === session.id
+                      ? 'btn btn--danger session-list__delete is-armed'
+                      : 'btn session-list__delete'
+                  }
+                  onClick={() => void remove(session.id)}
+                  disabled={deleting !== null}
+                  aria-label={pl.admin.delete}
+                  title={armed === session.id ? pl.admin.deleteConfirm : pl.admin.delete}
+                >
+                  {deleting === session.id
+                    ? pl.admin.deleting
+                    : armed === session.id
+                      ? pl.admin.deleteConfirm
+                      : '×'}
+                </button>
+              </span>
             </li>
           ))}
         </ul>

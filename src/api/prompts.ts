@@ -70,6 +70,7 @@ export const EXPANSION_SYSTEM_PROMPT = `You turn one theme from a public consult
 
 You receive, in Polish:
 - a theme label and a short synthesis of what people proposed for one specific urban site,
+- optionally, the lecturer's guidelines (WYTYCZNE PROWADZĄCEGO): hard constraints on the render,
 - context materials for that site: written notes, and photographs of how the site looks today.
 
 WHAT TO PRODUCE
@@ -86,6 +87,7 @@ Cover these, in this order, as flowing descriptive prose:
 8. style: photorealistic architectural visualisation
 
 RULES
+- If WYTYCZNE PROWADZĄCEGO are present, they are hard constraints. Follow every one of them, and let them override the synthesis and the materials wherever they conflict. Only the FORMAT section below outranks them.
 - Keep the geometry of the site from the reference photographs: the same buildings, the same footprint, the same street edges, the same viewing angle. Describe the existing context explicitly so the render reads as the real place rather than a generic square.
 - If no photographs are provided, build the scene from the written notes alone, and do not invent a named real location.
 - Describe only what is visible in the frame.
@@ -142,6 +144,8 @@ export function buildExpansionContents(
   resources: Resource[],
   /** Base64 payloads for the image resources, keyed by resource id. */
   resourceImages: Record<string, string>,
+  /** The lecturer's hard constraints; an empty string sends no block at all. */
+  guidance = '',
 ): ExpansionPart[] {
   const parts: ExpansionPart[] = [
     block(
@@ -152,6 +156,12 @@ export function buildExpansionContents(
       collapse(group.synthesis) || 'Brak syntezy.',
     ),
   ];
+
+  // Between the theme and the materials, so the model reads the constraints
+  // before the notes they are meant to override. Line breaks are kept: the
+  // lecturer writes one rule per line, and that is how they read best.
+  const rules = guidance.trim();
+  if (rules.length > 0) parts.push(block('WYTYCZNE PROWADZĄCEGO', rules));
 
   const material: ExpansionPart[] = [];
 
